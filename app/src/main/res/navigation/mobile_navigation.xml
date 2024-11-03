@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_inicio">
+
+    <fragment
+        android:id="@+id/nav_inicio"
+        android:name="com.santisoft.inmobiliariaalone.ui.inicio.InicioFragment"
+        android:label="@string/menu_inicio"
+        tools:layout="@layout/fragment_inicio" />
+
+    <fragment
+        android:id="@+id/nav_perfil"
+        android:name="com.santisoft.inmobiliariaalone.ui.perfil.PerfilFragment"
+        android:label="@string/menu_perfil"
+        tools:layout="@layout/fragment_perfil" />
+
+    <fragment
+        android:id="@+id/nav_inmuebles"
+        android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.InmueblesFragment"
+        android:label="@string/menu_inquilinos"
+        tools:layout="@layout/fragment_inmueble" />
+    <fragment
+        android:id="@+id/nav_logout"
+        android:name="com.santisoft.inmobiliariaalone.ui.logout.SalirFragment"
+        android:label="@string/menu_logout"
+        tools:layout="@layout/fragment_salir" />
+
+
+
+</navigation>
