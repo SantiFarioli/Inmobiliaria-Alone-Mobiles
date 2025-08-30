@@ -1,11 +1,25 @@
 package com.santisoft.inmobiliariaalone.retrofit;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import com.santisoft.inmobiliariaalone.auth.TokenStore;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
 import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.model.RestablecerContrasenaRequest;
+import com.santisoft.inmobiliariaalone.model.Inmueble;
+import com.santisoft.inmobiliariaalone.model.Inquilino;
+import com.santisoft.inmobiliariaalone.model.Contrato;
 
+import java.io.IOException;
+import java.util.List;
+
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -17,11 +31,14 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public class ApClient {
-    private static final String URL_BASE = "http://192.168.0.108:5157/api/";
+    // Cambiá la IP si corresponde
+    private static final String URL_BASE = "http://192.168.0.100:5157/api/";
 
+    // ---- Retrofit sin auth (login / solicitar reset) ----
     public static InmobliariaService getInmobiliariaService() {
         Gson gson = new GsonBuilder().setLenient().create();
         Retrofit retrofit = new Retrofit.Builder()
@@ -32,19 +49,68 @@ public class ApClient {
         return retrofit.create(InmobliariaService.class);
     }
 
+    // ---- Retrofit con auth automática (para el resto) ----
+    public static InmobliariaService getInmobiliariaService(Context ctx) {
+        Gson gson = new GsonBuilder().setLenient().create();
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new Interceptor() {
+                    @Override public Response intercept(Chain chain) throws IOException {
+                        String token = TokenStore.get(ctx);
+                        Request original = chain.request();
+                        Request.Builder builder = original.newBuilder();
+                        if (token != null && !token.isEmpty()) {
+                            builder.header("Authorization", "Bearer " + token);
+                        }
+                        return chain.proceed(builder.build());
+                    }
+                })
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(URL_BASE)
+                .client(client)
+                .addConverterFactory(ScalarsConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        return retrofit.create(InmobliariaService.class);
+    }
+
     public interface InmobliariaService {
+        // ---------- Propietarios (auth / perfil / reset) ----------
         @FormUrlEncoded
         @POST("Propietarios/login")
         Call<LoginResponse> login(@Field("Usuario") String usuario, @Field("Clave") String clave);
 
+        // Usá este con el Retrofit con auth (no hace falta Header)
         @GET("Propietarios/perfil")
-        Call<Propietario> obtenerPerfil(@Header("Authorization") String token);
+        Call<Propietario> obtenerPerfil();
 
         @FormUrlEncoded
         @POST("Propietarios/solicitar-restablecimiento")
         Call<ResponseBody> solicitarRecuperacion(@Field("email") String email);
 
         @POST("Propietarios/{id}/restablecer-contrasena")
-        Call<ResponseBody> restablecerContrasena(@Path("id") int id, @Body RestablecerContrasenaRequest request);
+        Call<ResponseBody> restablecerContrasena(@Path("id") int id,
+                                                 @Body RestablecerContrasenaRequest request);
+
+        // ---------- Inmuebles (tu backend tiene CRUD plano) ----------
+        @GET("Inmuebles")
+        Call<List<Inmueble>> inmueblesGetAll(); // con auth automática
+
+        @GET("Inmuebles/{id}")
+        Call<Inmueble> inmuebleGet(@Path("id") int id);
+
+        @PUT("Inmuebles/{id}")
+        Call<ResponseBody> inmuebleUpdate(@Path("id") int id, @Body Inmueble body);
+
+        // ---------- Contratos ----------
+        @GET("Contratos")
+        Call<List<Contrato>> contratosGetAll();
+
+        // ---------- Inquilinos ----------
+        @GET("Inquilinos")
+        Call<List<Inquilino>> inquilinosGetAll();
     }
 }

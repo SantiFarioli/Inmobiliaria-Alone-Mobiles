@@ -5,12 +5,12 @@ import java.util.Date;
 public class Pago {
     private int idPago;
     private int idContrato;
-    private Contract contrato;
+    private Contrato contrato;
     private int numeroPago;
     private Date fechaPago;
     private double importe;
 
-    public Pago(int idPago, int idContrato, Contract contrato, int numeroPago, Date fechaPago, double importe) {
+    public Pago(int idPago, int idContrato, Contrato contrato, int numeroPago, Date fechaPago, double importe) {
         this.idPago = idPago;
         this.idContrato = idContrato;
         this.contrato = contrato;
@@ -35,11 +35,11 @@ public class Pago {
         this.idContrato = idContrato;
     }
 
-    public Contract getContrato() {
+    public Contrato getContrato() {
         return contrato;
     }
 
-    public void setContrato(Contract contrato) {
+    public void setContrato(Contrato contrato) {
         this.contrato = contrato;
     }
 

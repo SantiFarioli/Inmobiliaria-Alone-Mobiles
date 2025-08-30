@@ -25,7 +25,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="http"
-                    android:host="192.168.0.108"
+                    android:host="192.168.0.100"
                     android:port="5157"
                     android:pathPattern="/api/Propietarios/.*/restablecer-contrasena" />
             </intent-filter>

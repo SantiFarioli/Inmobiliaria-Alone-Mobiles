@@ -1,8 +1,9 @@
 package com.santisoft.inmobiliariaalone.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Inmueble {
+public class Inmueble implements Serializable {
     private int idInmueble;
     private String direccion;
     private String uso;
@@ -13,9 +14,9 @@ public class Inmueble {
     private int idPropietario;
     private Propietario propietario;
     private List<Object> contratos;
-    private String imagen;
+    private String fotoInmueble;
 
-    public Inmueble(int idInmueble, String direccion, String uso, String tipo, int ambientes, double precio, String estado, int idPropietario, Propietario propietario, List<Object> contratos, String imagen) {
+    public Inmueble(int idInmueble, String direccion, String uso, String tipo, int ambientes, double precio, String estado, int idPropietario, Propietario propietario, List<Object> contratos, String fotoInmueble) {
         this.idInmueble = idInmueble;
         this.direccion = direccion;
         this.uso = uso;
@@ -26,8 +27,15 @@ public class Inmueble {
         this.idPropietario = idPropietario;
         this.propietario = propietario;
         this.contratos = contratos;
-        this.imagen = imagen;
+        this.fotoInmueble = fotoInmueble;
     }
+
+    public Inmueble(String direccion, double precio, String imagen) {
+        this.direccion = direccion;
+        this.precio = precio;
+        this.fotoInmueble = fotoInmueble;
+    }
+
 
     public int getIdInmueble() {
         return idInmueble;
@@ -110,10 +118,10 @@ public class Inmueble {
     }
 
     public String getImagen() {
-        return imagen;
+        return fotoInmueble;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public void setImagen(String fotoInmueble) {
+        this.fotoInmueble = fotoInmueble;
     }
 }
