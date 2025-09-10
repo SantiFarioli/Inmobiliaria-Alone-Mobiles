@@ -95,6 +95,13 @@ public class ApClient {
         Call<ResponseBody> restablecerContrasena(@Path("id") int id,
                                                  @Body RestablecerContrasenaRequest request);
 
+        @PUT("Propietarios/perfil")
+        Call<Propietario> propietarioUpdate(@Body Propietario body);
+
+        @PUT("Propietarios/{id}")
+        Call<Propietario> propietarioUpdateById(@Path("id") int id, @Body Propietario body);
+
+
         // ---------- Inmuebles (tu backend tiene CRUD plano) ----------
         @GET("Inmuebles")
         Call<List<Inmueble>> inmueblesGetAll(); // con auth automática

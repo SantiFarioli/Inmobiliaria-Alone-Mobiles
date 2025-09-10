@@ -1,5 +1,6 @@
 package com.santisoft.inmobiliariaalone.ui.inmuebles;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -24,7 +25,7 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
     private final OnToggle onToggle;
     private final OnClick  onClick;
 
-    // Tus imágenes locales de respaldo
+    // Imágenes locales de respaldo
     private final int[] localFotos = {
             R.drawable.casa1,
             R.drawable.casa2,
@@ -63,56 +64,52 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
         if (h.b.chEstado != null) {
             boolean disponible = "disponible".equalsIgnoreCase(it.getEstado());
             h.b.chEstado.setText(disponible ? "Disponible" : "No disponible");
-            h.b.chEstado.setChipBackgroundColorResource(disponible ? R.color.teal_200 : R.color.purple_200);
+            h.b.chEstado.setChipBackgroundColorResource(
+                    disponible ? R.color.teal_200 : R.color.purple_200
+            );
         }
 
-        // Switch Disponible
+        // Switch Disponible (si existe)
         if (h.b.switchDisponible != null) {
             boolean disponible = "disponible".equalsIgnoreCase(it.getEstado());
             h.b.switchDisponible.setOnCheckedChangeListener(null);
             h.b.switchDisponible.setChecked(disponible);
-            h.b.switchDisponible.setOnCheckedChangeListener((btn, checked) -> onToggle.onToggle(it, checked));
+            h.b.switchDisponible.setOnCheckedChangeListener(
+                    (btn, checked) -> onToggle.onToggle(it, checked)
+            );
         }
 
         // ====== IMAGEN ======
-        // Intenta con URL, luego con nombre de drawable, y al final usa una de respaldo.
-        String foto = getFotoFromModel(it); // ajustá este getter si tu modelo usa otro nombre
-        if (!TextUtils.isEmpty(foto) && (foto.startsWith("http://") || foto.startsWith("https://"))) {
+        Context ctx = h.b.ivImagenInmueble.getContext();
+        String foto = getFotoFromModel(it);
+
+        if (!TextUtils.isEmpty(foto) &&
+                (foto.startsWith("http://") || foto.startsWith("https://"))) {
             // 1) URL remota
-            Glide.with(h.b.getRoot())
+            Glide.with(ctx)
                     .load(foto)
-                    .placeholder(R.drawable.casa1) // placeholder local
+                    .placeholder(R.drawable.casa1)
                     .centerCrop()
                     .into(h.b.ivImagenInmueble);
+
         } else if (!TextUtils.isEmpty(foto)) {
             // 2) Nombre de recurso local (ej. "casa1" o "casa1.jpg")
             String resName = foto.toLowerCase()
                     .replace(".jpg","")
                     .replace(".jpeg","")
                     .replace(".png","");
-            int resId = h.b.getRoot().getResources().getIdentifier(
-                    resName, "drawable", h.b.getRoot().getContext().getPackageName()
-            );
+            int resId = ctx.getResources().getIdentifier(resName, "drawable", ctx.getPackageName());
             if (resId != 0) {
-                Glide.with(h.b.getRoot())
-                        .load(resId)
-                        .centerCrop()
-                        .into(h.b.ivImagenInmueble);
+                Glide.with(ctx).load(resId).centerCrop().into(h.b.ivImagenInmueble);
             } else {
-                // Fallback cíclico
                 int pick = position % localFotos.length;
-                Glide.with(h.b.getRoot())
-                        .load(localFotos[pick])
-                        .centerCrop()
-                        .into(h.b.ivImagenInmueble);
+                Glide.with(ctx).load(localFotos[pick]).centerCrop().into(h.b.ivImagenInmueble);
             }
+
         } else {
             // 3) Sin info → fallback cíclico
             int pick = position % localFotos.length;
-            Glide.with(h.b.getRoot())
-                    .load(localFotos[pick])
-                    .centerCrop()
-                    .into(h.b.ivImagenInmueble);
+            Glide.with(ctx).load(localFotos[pick]).centerCrop().into(h.b.ivImagenInmueble);
         }
 
         // Click en toda la card
@@ -130,12 +127,13 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
         }
     }
 
-    // 👉 Ajustá este método según tu modelo.
-    // Si en tu clase Inmueble tenés otro campo (ej. getImagen(), getFoto(), etc.), usalo acá.
+    // Prioriza getFoto() (nuevo backend) y cae a getImagen() (compatibilidad)
     private String getFotoFromModel(Inmueble it) {
-        // return it.getImagen();  // ejemplo alternativo
         try {
-            return it.getImagen(); // lo que tenías en el adapter anterior
+            String f = null;
+            try { f = it.getFoto(); } catch (Exception ignored) {}
+            if (TextUtils.isEmpty(f)) { try { f = it.getImagen(); } catch (Exception ignored) {} }
+            return f;
         } catch (Exception e) {
             return null;
         }
