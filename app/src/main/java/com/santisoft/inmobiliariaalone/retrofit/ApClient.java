@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 
 import com.santisoft.inmobiliariaalone.auth.TokenStore;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
+import com.santisoft.inmobiliariaalone.model.Pago;
 import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.model.RestablecerContrasenaRequest;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
@@ -83,7 +84,6 @@ public class ApClient {
         @POST("Propietarios/login")
         Call<LoginResponse> login(@Field("Usuario") String usuario, @Field("Clave") String clave);
 
-        // Usá este con el Retrofit con auth (no hace falta Header)
         @GET("Propietarios/perfil")
         Call<Propietario> obtenerPerfil();
 
@@ -101,8 +101,7 @@ public class ApClient {
         @PUT("Propietarios/{id}")
         Call<Propietario> propietarioUpdateById(@Path("id") int id, @Body Propietario body);
 
-
-        // ---------- Inmuebles (tu backend tiene CRUD plano) ----------
+        // ---------- Inmuebles ----------
         @GET("Inmuebles")
         Call<List<Inmueble>> inmueblesGetAll(); // con auth automática
 
@@ -116,8 +115,15 @@ public class ApClient {
         @GET("Contratos")
         Call<List<Contrato>> contratosGetAll();
 
+        @GET("Contratos/vigentes/mios")
+        Call<List<Contrato>> contratosVigentesMios();
+
         // ---------- Inquilinos ----------
         @GET("Inquilinos")
         Call<List<Inquilino>> inquilinosGetAll();
+
+        // ---------- Pagos ----------
+        @GET("Pagos/por-contrato/{id}")
+        Call<List<Pago>> pagosPorContrato(@Path("idContrato") int contratoId);
     }
 }

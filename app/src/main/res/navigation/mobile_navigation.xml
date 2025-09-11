@@ -52,15 +52,29 @@
         android:label="@string/menu_inquilinos"
         tools:layout="@layout/fragment_inquilinos" />
     <fragment
-        android:id="@+id/contratosFragment"
+        android:id="@+id/nav_contratos"
         android:name="com.santisoft.inmobiliariaalone.ui.contratos.ContratosFragment"
-        android:label="fragment_contratos"
-        tools:layout="@layout/fragment_contratos" />
+        android:label="Contratos"
+        tools:layout="@layout/fragment_contratos">
+        <action
+            android:id="@+id/action_nav_contratos_to_pagosFragment"
+            app:destination="@id/pagosFragment"/>
+    </fragment>
+
     <fragment
         android:id="@+id/nav_agregarInmuebleFragment"
         android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.AgregarInmuebleFragment"
         android:label="fragment_agregar_inmueble"
         tools:layout="@layout/fragment_agregar_inmueble" />
+    <fragment
+        android:id="@+id/pagosFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.contratos.PagosFragment"
+        android:label="Pagos"
+        tools:layout="@layout/fragment_pagos">
+        <argument
+            android:name="contratoId"
+            app:argType="integer"/>
+    </fragment>
 
 
 </navigation>
