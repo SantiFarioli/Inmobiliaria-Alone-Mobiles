@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.santisoft.inmobiliariaalone.databinding.ItemContratoBinding;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -16,7 +17,11 @@ public class ContratoAdapter extends RecyclerView.Adapter<ContratoAdapter.VH> {
 
     private final List<Contrato> data = new ArrayList<>();
     private final OnClick onClick;
-    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+    // salida en UI
+    private final SimpleDateFormat sdfOut = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+    // por si llegan como String (ISO del backend)
+    private final SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
 
     public ContratoAdapter(OnClick onClick) { this.onClick = onClick; }
 
@@ -32,12 +37,16 @@ public class ContratoAdapter extends RecyclerView.Adapter<ContratoAdapter.VH> {
 
     @Override public void onBindViewHolder(@NonNull VH h, int pos) {
         Contrato c = data.get(pos);
+
         String dir = (c.getInmueble()!=null) ? c.getInmueble().getDireccion() : "Inmueble";
         String inq = (c.getInquilino()!=null) ? c.getInquilino().getNombreCompleto() : "Inquilino";
 
         h.b.tvDireccion.setText(dir);
         h.b.tvInquilino.setText(inq);
-        h.b.tvFechas.setText(sdf.format(c.getFechaInicio()) + "  -  " + sdf.format(c.getFechaFin()));
+
+        // Fechas tolerantes: Date o String
+        h.b.tvFechas.setText(formatAny(c.getFechaInicio()) + "  -  " + formatAny(c.getFechaFin()));
+
         h.b.getRoot().setOnClickListener(v -> onClick.onClick(c));
     }
 
@@ -46,5 +55,19 @@ public class ContratoAdapter extends RecyclerView.Adapter<ContratoAdapter.VH> {
     static class VH extends RecyclerView.ViewHolder {
         final ItemContratoBinding b;
         VH(@NonNull ItemContratoBinding b) { super(b.getRoot()); this.b = b; }
+    }
+
+    private String formatAny(Object src) {
+        if (src == null) return "—";
+        try {
+            if (src instanceof Date) {
+                return sdfOut.format((Date) src);
+            }
+            if (src instanceof String) {
+                Date d = sdfIso.parse((String) src);
+                return (d != null) ? sdfOut.format(d) : "—";
+            }
+        } catch (ParseException ignore) {}
+        return "—";
     }
 }

@@ -4,15 +4,14 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import com.santisoft.inmobiliariaalone.auth.TokenStore;
+import com.santisoft.inmobiliariaalone.model.Contrato;
+import com.santisoft.inmobiliariaalone.model.Inmueble;
+import com.santisoft.inmobiliariaalone.model.Inquilino;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
 import com.santisoft.inmobiliariaalone.model.Pago;
 import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.model.RestablecerContrasenaRequest;
-import com.santisoft.inmobiliariaalone.model.Inmueble;
-import com.santisoft.inmobiliariaalone.model.Inquilino;
-import com.santisoft.inmobiliariaalone.model.Contrato;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,30 +29,34 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public class ApClient {
-    // Cambiá la IP si corresponde
+    // Cambiá si corresponde (emulador: http://10.0.2.2:5157/api/)
     private static final String URL_BASE = "http://192.168.0.100:5157/api/";
+
+    private static Gson gson() {
+        return new GsonBuilder()
+                .setLenient()
+                // Muy importante: el backend devuelve "yyyy-MM-dd'T'HH:mm:ss"
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+                .create();
+    }
 
     // ---- Retrofit sin auth (login / solicitar reset) ----
     public static InmobliariaService getInmobiliariaService() {
-        Gson gson = new GsonBuilder().setLenient().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(URL_BASE)
                 .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create(gson()))
                 .build();
         return retrofit.create(InmobliariaService.class);
     }
 
     // ---- Retrofit con auth automática (para el resto) ----
     public static InmobliariaService getInmobiliariaService(Context ctx) {
-        Gson gson = new GsonBuilder().setLenient().create();
-
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
                     @Override public Response intercept(Chain chain) throws IOException {
@@ -72,7 +75,7 @@ public class ApClient {
                 .baseUrl(URL_BASE)
                 .client(client)
                 .addConverterFactory(ScalarsConverterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addConverterFactory(GsonConverterFactory.create(gson()))
                 .build();
 
         return retrofit.create(InmobliariaService.class);
@@ -103,7 +106,7 @@ public class ApClient {
 
         // ---------- Inmuebles ----------
         @GET("Inmuebles")
-        Call<List<Inmueble>> inmueblesGetAll(); // con auth automática
+        Call<List<Inmueble>> inmueblesGetAll();
 
         @GET("Inmuebles/{id}")
         Call<Inmueble> inmuebleGet(@Path("id") int id);
@@ -115,6 +118,7 @@ public class ApClient {
         @GET("Contratos")
         Call<List<Contrato>> contratosGetAll();
 
+        // OJO: coincide con tu controlador [HttpGet("vigentes/mios")]
         @GET("Contratos/vigentes/mios")
         Call<List<Contrato>> contratosVigentesMios();
 
@@ -124,6 +128,6 @@ public class ApClient {
 
         // ---------- Pagos ----------
         @GET("Pagos/por-contrato/{id}")
-        Call<List<Pago>> pagosPorContrato(@Path("idContrato") int contratoId);
+        Call<List<Pago>> pagosPorContrato(@Path("id") int contratoId);
     }
 }
