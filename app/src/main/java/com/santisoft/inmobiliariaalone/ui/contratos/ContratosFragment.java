@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.google.gson.Gson;
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.databinding.FragmentContratosBinding;
 import com.santisoft.inmobiliariaalone.model.Contrato;
@@ -25,9 +27,9 @@ public class ContratosFragment extends Fragment {
 
         adapter = new ContratoAdapter(item -> {
             Bundle args = new Bundle();
-            args.putInt("contratoId", item.getIdContrato());
+            args.putString("contratoJson", new Gson().toJson(item));
             Navigation.findNavController(b.getRoot())
-                    .navigate(R.id.pagosFragment, args);
+                    .navigate(R.id.detalleContratoFragment, args);
         });
 
         b.rvContratos.setLayoutManager(new LinearLayoutManager(getContext()));

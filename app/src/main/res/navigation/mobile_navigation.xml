@@ -62,27 +62,43 @@
         android:id="@+id/inquilinoDetalleFragment"
         android:name="com.santisoft.inmobiliariaalone.ui.inquilinos.DetalleInquilinoFragment"
         android:label="Inquilino"
-        tools:layout="@layout/fragment_inquilino_detalle">
+        tools:layout="@layout/fragment_detalle_inquilino">
         <argument
             android:name="inquilinoJson"
             app:argType="string" />
     </fragment>
 
+    <!-- ya existente -->
     <fragment
         android:id="@+id/nav_contratos"
         android:name="com.santisoft.inmobiliariaalone.ui.contratos.ContratosFragment"
         android:label="Contratos"
         tools:layout="@layout/fragment_contratos">
+
         <action
-            android:id="@+id/action_nav_contratos_to_pagosFragment"
-            app:destination="@id/pagosFragment"/>
+            android:id="@+id/action_nav_contratos_to_detalleContratoFragment"
+            app:destination="@id/detalleContratoFragment"/>
     </fragment>
 
     <fragment
-        android:id="@+id/nav_agregarInmuebleFragment"
-        android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.AgregarInmuebleFragment"
-        android:label="fragment_agregar_inmueble"
-        tools:layout="@layout/fragment_agregar_inmueble" />
+        android:id="@+id/detalleContratoFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.contratos.DetalleContratoFragment"
+        android:label="Contrato"
+        tools:layout="@layout/fragment_detalle_contrato">
+
+        <!-- 👇 agregar -->
+        <argument
+            android:name="contratoJson"
+            app:argType="string"
+            android:defaultValue=""/>
+
+        <action
+            android:id="@+id/action_detalleContratoFragment_to_pagosFragment"
+            app:destination="@id/pagosFragment"/>
+    </fragment>
+
+
+    <!-- pagos ya existente -->
     <fragment
         android:id="@+id/pagosFragment"
         android:name="com.santisoft.inmobiliariaalone.ui.contratos.PagosFragment"
@@ -92,6 +108,13 @@
             android:name="contratoId"
             app:argType="integer"/>
     </fragment>
+
+
+    <fragment
+        android:id="@+id/nav_agregarInmuebleFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.AgregarInmuebleFragment"
+        android:label="fragment_agregar_inmueble"
+        tools:layout="@layout/fragment_agregar_inmueble" />
 
 
 </navigation>
