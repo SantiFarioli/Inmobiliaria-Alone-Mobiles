@@ -46,11 +46,28 @@
             android:id="@+id/action_detalleInmuebleFragment_to_nav_inmuebles"
             app:destination="@id/nav_inmuebles" />
     </fragment>
+    <!-- Lista -->
     <fragment
         android:id="@+id/nav_inquilinos"
         android:name="com.santisoft.inmobiliariaalone.ui.inquilinos.InquilinosFragment"
         android:label="@string/menu_inquilinos"
-        tools:layout="@layout/fragment_inquilinos" />
+        tools:layout="@layout/fragment_inquilinos">
+        <action
+            android:id="@+id/action_nav_inquilinos_to_inquilinoDetalleFragment"
+            app:destination="@id/inquilinoDetalleFragment" />
+    </fragment>
+
+    <!-- Detalle -->
+    <fragment
+        android:id="@+id/inquilinoDetalleFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.inquilinos.DetalleInquilinoFragment"
+        android:label="Inquilino"
+        tools:layout="@layout/fragment_inquilino_detalle">
+        <argument
+            android:name="inquilinoJson"
+            app:argType="string" />
+    </fragment>
+
     <fragment
         android:id="@+id/nav_contratos"
         android:name="com.santisoft.inmobiliariaalone.ui.contratos.ContratosFragment"
