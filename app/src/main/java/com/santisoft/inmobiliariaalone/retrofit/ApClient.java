@@ -111,6 +111,9 @@ public class ApClient {
         @GET("Inmuebles/{id}")
         Call<Inmueble> inmuebleGet(@Path("id") int id);
 
+        @POST("Inmuebles")
+        Call<Inmueble> inmuebleCreate(@Body Inmueble body);
+
         @PUT("Inmuebles/{id}")
         Call<ResponseBody> inmuebleUpdate(@Path("id") int id, @Body Inmueble body);
 

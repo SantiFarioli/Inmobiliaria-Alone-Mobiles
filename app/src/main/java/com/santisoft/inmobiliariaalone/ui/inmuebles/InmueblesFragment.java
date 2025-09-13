@@ -11,9 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.databinding.FragmentInmuebleBinding;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
 
@@ -37,13 +39,20 @@ public class InmueblesFragment extends Fragment {
 
         vm = new ViewModelProvider(this).get(InmueblesViewModel.class);
 
-        // Recycler + Adapter (binding usa recyclerView del XML)
+        // Recycler + Adapter
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new InmuebleAdapter(
                 // Toggle de disponibilidad -> PUT en el VM
                 (item, checked) -> vm.toggleDisponibilidad(item, checked),
-                // Click en el item (podés navegar al detalle acá)
-                (Inmueble item) -> { /* TODO: Nav a detalle si querés */ }
+                // Click en el item -> navegar a DetalleInmueble
+                (Inmueble item) -> {
+                    Bundle args = new Bundle();
+                    // usa la misma clave que definiste en el nav_graph
+                    // (detalleInmuebleFragment tiene arg "inmueble" de tipo modelo)
+                    args.putSerializable("inmueble", item);
+                    Navigation.findNavController(view)
+                            .navigate(R.id.action_nav_inmuebles_to_detalleInmuebleFragment, args);
+                }
         );
         binding.recyclerView.setAdapter(adapter);
 
@@ -59,14 +68,26 @@ public class InmueblesFragment extends Fragment {
             }
         });
 
-        // Cargar data
+        // FAB -> navegar a AgregarInmuebleFragment
+        binding.fabAgregarInmueble.setOnClickListener(v ->
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_nav_inmuebles_to_agregarInmuebleFragment)
+        );
+
+        // Cargar data inicial
+        vm.cargar();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // refrescar la lista al volver de "Agregar"
         vm.cargar();
     }
 
     private void renderLista(List<Inmueble> list) {
         adapter.submit(list);
         boolean empty = (list == null || list.isEmpty());
-        // Si tu layout tiene un TextView para estado vacío (ej. text_slideshow)
         if (binding.textSlideshow != null) {
             binding.textSlideshow.setText(empty ? "No hay inmuebles cargados" : "");
             binding.textSlideshow.setVisibility(empty ? View.VISIBLE : View.GONE);
