@@ -42,15 +42,11 @@ public class InmueblesFragment extends Fragment {
         // Recycler + Adapter
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new InmuebleAdapter(
-                // Toggle de disponibilidad -> PUT en el VM
                 (item, checked) -> vm.toggleDisponibilidad(item, checked),
-                // Click en el item -> navegar a DetalleInmueble
                 (Inmueble item) -> {
                     Bundle args = new Bundle();
-                    // usa la misma clave que definiste en el nav_graph
-                    // (detalleInmuebleFragment tiene arg "inmueble" de tipo modelo)
-                    args.putSerializable("inmueble", item);
-                    Navigation.findNavController(view)
+                    args.putSerializable("inmueble", item); // tu nav_graph ya define ese argumento
+                    Navigation.findNavController(requireView())
                             .navigate(R.id.action_nav_inmuebles_to_detalleInmuebleFragment, args);
                 }
         );

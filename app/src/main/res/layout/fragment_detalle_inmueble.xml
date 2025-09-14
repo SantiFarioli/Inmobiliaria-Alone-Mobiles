@@ -1,168 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tvTitulo"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Información del inmueble"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/purple_700"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- Código -->
-    <TextView
-        android:id="@+id/tvCodigoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Código:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"/>
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardUseCompatPadding="true">
 
-    <TextView
-        android:id="@+id/tvCodigo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-        app:layout_constraintStart_toEndOf="@id/tvCodigoLabel"
-        android:layout_marginStart="8dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <!-- Ambientes -->
-    <TextView
-        android:id="@+id/tvAmbientesLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ambientes:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-        app:layout_constraintStart_toEndOf="@id/tvCodigo"
-        android:layout_marginStart="24dp"/>
+                <TextView
+                    android:id="@+id/tvTitulo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Información del inmueble"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvAmbientes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvTitulo"
-        app:layout_constraintStart_toEndOf="@id/tvAmbientesLabel"
-        android:layout_marginStart="8dp"/>
+                <TextView
+                    android:id="@+id/tvDireccion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Dirección" />
 
-    <!-- Dirección -->
-    <TextView
-        android:id="@+id/tvDireccionLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dirección:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvCodigo"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"/>
+                <TextView
+                    android:id="@+id/tvPrecio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="$ 0.0" />
 
-    <TextView
-        android:id="@+id/tvDireccion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvCodigo"
-        app:layout_constraintStart_toEndOf="@id/tvDireccionLabel"
-        android:layout_marginStart="8dp"/>
+                <!-- Estado -->
+                <TextView
+                    android:id="@+id/tvEstado"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="-"
+                    android:textSize="14sp" />
 
-    <!-- Precio -->
-    <TextView
-        android:id="@+id/tvPrecioLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Precio:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvAmbientes"
-        app:layout_constraintStart_toEndOf="@id/tvDireccion"
-        android:layout_marginStart="24dp"/>
+                <!-- “Píldoras” en lugar de Chips -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvPrecio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvAmbientes"
-        app:layout_constraintStart_toEndOf="@id/tvPrecioLabel"
-        android:layout_marginStart="8dp"/>
+                    <TextView
+                        android:id="@+id/chUso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Uso"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/rounded_background" />
 
-    <!-- Uso -->
-    <TextView
-        android:id="@+id/tvUsoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Uso:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvDireccion"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp"/>
+                    <TextView
+                        android:id="@+id/chTipo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tipo"
+                        android:textSize="14sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/rounded_background" />
 
-    <TextView
-        android:id="@+id/tvUso"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvDireccion"
-        app:layout_constraintStart_toEndOf="@id/tvUsoLabel"
-        android:layout_marginStart="8dp"/>
+                    <TextView
+                        android:id="@+id/chAmbientes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Amb."
+                        android:textSize="14sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:background="@drawable/rounded_background" />
+                </LinearLayout>
 
-    <!-- Estado / Disponible -->
-    <TextView
-        android:id="@+id/tvEstadoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Disponible:"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvPrecio"
-        app:layout_constraintStart_toEndOf="@id/tvUso"
-        android:layout_marginStart="24dp"/>
+                <ImageView
+                    android:id="@+id/ivFoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="12dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/casa3" />
 
-    <TextView
-        android:id="@+id/tvEstado"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvPrecio"
-        app:layout_constraintStart_toEndOf="@id/tvEstadoLabel"
-        android:layout_marginStart="8dp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
-    <!-- Tipo -->
-
-    <TextView
-        android:id="@+id/tvTipoLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="112dp"
-        android:text="Tipo:"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvUso" />
-
-    <TextView
-        android:id="@+id/tvTipo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvUso"
-        app:layout_constraintStart_toEndOf="@id/tvTipoLabel"
-        android:layout_marginStart="8dp"/>
-
-    <!-- Imagen -->
-    <ImageView
-        android:id="@+id/ivImagenInmueble"
-        android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="264dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTipo" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</ScrollView>

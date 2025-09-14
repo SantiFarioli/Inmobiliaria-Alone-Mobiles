@@ -1,7 +1,5 @@
 package com.santisoft.inmobiliariaalone.ui.inmuebles;
 
-import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -18,23 +16,16 @@ import java.util.List;
 
 public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
 
-    public interface OnToggle { void onToggle(Inmueble i, boolean checked); }
-    public interface OnClick  { void onClick(Inmueble i); }
+    public interface OnToggle { void onToggle(Inmueble item, boolean checked); }
+    public interface OnItemClick { void onClick(Inmueble item); }
 
     private final List<Inmueble> data = new ArrayList<>();
     private final OnToggle onToggle;
-    private final OnClick  onClick;
+    private final OnItemClick onItemClick;
 
-    // Imágenes locales de respaldo
-    private final int[] localFotos = {
-            R.drawable.casa1,
-            R.drawable.casa2,
-            R.drawable.casa3
-    };
-
-    public InmuebleAdapter(OnToggle onToggle, OnClick onClick){
+    public InmuebleAdapter(OnToggle onToggle, OnItemClick onItemClick){
         this.onToggle = onToggle;
-        this.onClick  = onClick;
+        this.onItemClick = onItemClick;
     }
 
     public void submit(List<Inmueble> list){
@@ -43,99 +34,53 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
         notifyDataSetChanged();
     }
 
-    @NonNull
-    @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemInmuebleBinding b = ItemInmuebleBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false
-        );
-        return new VH(b);
+    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+        return new VH(ItemInmuebleBinding.inflate(LayoutInflater.from(p.getContext()), p, false));
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull VH h, int position) {
-        Inmueble it = data.get(position);
+    @Override public void onBindViewHolder(@NonNull VH h, int pos) {
+        Inmueble i = data.get(pos);
 
-        // Textos
-        h.b.tvDireccion.setText(it.getDireccion());
-        h.b.tvPrecio.setText("$ " + it.getPrecio());
+        h.b.tvDireccion.setText(i.getDireccion());
+        h.b.tvPrecio.setText("$ " + i.getPrecio());
 
-        // Chip de estado (si existe en el layout)
-        if (h.b.chEstado != null) {
-            boolean disponible = "disponible".equalsIgnoreCase(it.getEstado());
-            h.b.chEstado.setText(disponible ? "Disponible" : "No disponible");
-            h.b.chEstado.setChipBackgroundColorResource(
-                    disponible ? R.color.teal_200 : R.color.purple_200
-            );
-        }
+        // ¿Tiene contrato vigente? (el VM adjunta solo los vigentes)
+        boolean tieneVigente = i.getContratos()!=null && !i.getContratos().isEmpty();
 
-        // Switch Disponible (si existe)
-        if (h.b.switchDisponible != null) {
-            boolean disponible = "disponible".equalsIgnoreCase(it.getEstado());
-            h.b.switchDisponible.setOnCheckedChangeListener(null);
-            h.b.switchDisponible.setChecked(disponible);
-            h.b.switchDisponible.setOnCheckedChangeListener(
-                    (btn, checked) -> onToggle.onToggle(it, checked)
-            );
-        }
+        // Evitar loops de listener
+        h.b.swDisponible.setOnCheckedChangeListener(null);
 
-        // ====== IMAGEN ======
-        Context ctx = h.b.ivImagenInmueble.getContext();
-        String foto = getFotoFromModel(it);
-
-        if (!TextUtils.isEmpty(foto) &&
-                (foto.startsWith("http://") || foto.startsWith("https://"))) {
-            // 1) URL remota
-            Glide.with(ctx)
-                    .load(foto)
-                    .placeholder(R.drawable.casa1)
-                    .centerCrop()
-                    .into(h.b.ivImagenInmueble);
-
-        } else if (!TextUtils.isEmpty(foto)) {
-            // 2) Nombre de recurso local (ej. "casa1" o "casa1.jpg")
-            String resName = foto.toLowerCase()
-                    .replace(".jpg","")
-                    .replace(".jpeg","")
-                    .replace(".png","");
-            int resId = ctx.getResources().getIdentifier(resName, "drawable", ctx.getPackageName());
-            if (resId != 0) {
-                Glide.with(ctx).load(resId).centerCrop().into(h.b.ivImagenInmueble);
-            } else {
-                int pick = position % localFotos.length;
-                Glide.with(ctx).load(localFotos[pick]).centerCrop().into(h.b.ivImagenInmueble);
-            }
-
+        if (tieneVigente) {
+            // Bloqueado por contrato: forzar apagado, deshabilitar e indicar visualmente
+            h.b.swDisponible.setChecked(false);
+            h.b.swDisponible.setEnabled(false);
+            h.b.swDisponible.setAlpha(0.5f);
         } else {
-            // 3) Sin info → fallback cíclico
-            int pick = position % localFotos.length;
-            Glide.with(ctx).load(localFotos[pick]).centerCrop().into(h.b.ivImagenInmueble);
+            // Libre: respetar estado
+            boolean disponible = "disponible".equalsIgnoreCase(i.getEstado());
+            h.b.swDisponible.setEnabled(true);
+            h.b.swDisponible.setAlpha(1f);
+            h.b.swDisponible.setChecked(disponible);
+            h.b.swDisponible.setOnCheckedChangeListener((btn, checked) -> onToggle.onToggle(i, checked));
         }
 
-        // Click en toda la card
-        h.b.getRoot().setOnClickListener(v -> onClick.onClick(it));
+        // Imagen (URL o content:// del picker)
+        String foto = i.getFoto();
+        Glide.with(h.b.ivFoto.getContext())
+                .load(foto == null || foto.trim().isEmpty() ? null : foto)
+                .placeholder(R.drawable.casa1)
+                .error(R.drawable.casa1)
+                .into(h.b.ivFoto);
+
+        // Botón "Ver detalle"
+        h.b.btnVer.setText("Ver detalle");
+        h.b.btnVer.setOnClickListener(v -> onItemClick.onClick(i));
     }
 
-    @Override
-    public int getItemCount() { return data.size(); }
+    @Override public int getItemCount() { return data.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
         final ItemInmuebleBinding b;
-        VH(@NonNull ItemInmuebleBinding binding) {
-            super(binding.getRoot());
-            this.b = binding;
-        }
-    }
-
-    // Prioriza getFoto() (nuevo backend) y cae a getImagen() (compatibilidad)
-    private String getFotoFromModel(Inmueble it) {
-        try {
-            String f = null;
-            try { f = it.getFoto(); } catch (Exception ignored) {}
-            if (TextUtils.isEmpty(f)) { try { f = it.getImagen(); } catch (Exception ignored) {} }
-            return f;
-        } catch (Exception e) {
-            return null;
-        }
+        VH(@NonNull ItemInmuebleBinding b) { super(b.getRoot()); this.b = b; }
     }
 }

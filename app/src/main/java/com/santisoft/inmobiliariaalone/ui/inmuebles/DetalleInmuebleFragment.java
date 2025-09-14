@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.bumptech.glide.Glide;
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.databinding.FragmentDetalleInmuebleBinding;
@@ -30,19 +32,28 @@ public class DetalleInmuebleFragment extends Fragment {
         if (getArguments() != null) {
             Inmueble inmueble = (Inmueble) getArguments().getSerializable("inmueble");
             if (inmueble != null) {
-                binding.tvCodigo.setText(String.valueOf(inmueble.getIdInmueble()));
-                binding.tvDireccion.setText(inmueble.getDireccion());
-                binding.tvUso.setText(inmueble.getUso());
-                binding.tvTipo.setText(inmueble.getTipo());
-                binding.tvAmbientes.setText(String.valueOf(inmueble.getAmbientes()));
-                binding.tvPrecio.setText(String.format("$%.2f", inmueble.getPrecio()));
-                binding.tvEstado.setText(inmueble.getEstado());
 
+
+                binding.tvTitulo.setText("Información del inmueble");
+                binding.tvDireccion.setText(inmueble.getDireccion());
+                binding.tvPrecio.setText("$ " + inmueble.getPrecio());
+                binding.chUso.setText(inmueble.getUso());
+                binding.chTipo.setText(inmueble.getTipo());
+                binding.chAmbientes.setText(String.valueOf(inmueble.getAmbientes()));
+
+
+                if (binding.tvEstado != null) {
+                    String estado = inmueble.getEstado();
+                    binding.tvEstado.setText(estado == null ? "-" : estado);
+                }
+
+                // Foto: soporta URL o content:// del picker
+                String foto = inmueble.getFoto(); // alias de getImagen()
                 Glide.with(this)
-                        .load(inmueble.getImagen())
+                        .load(foto == null || foto.isEmpty() ? null : foto)
                         .placeholder(R.drawable.casa1)
                         .error(R.drawable.casa2)
-                        .into(binding.ivImagenInmueble);
+                        .into(binding.ivFoto);
             }
         }
     }
