@@ -29,6 +29,8 @@ public class Propietario {
         this.resetTokenExpiry = resetTokenExpiry;
     }
 
+    public Propietario() { }
+
     // Getters y setters
     public int getIdPropietario() {
         return idPropietario;

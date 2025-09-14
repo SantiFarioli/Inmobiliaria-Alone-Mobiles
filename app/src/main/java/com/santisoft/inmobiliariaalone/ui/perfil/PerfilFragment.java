@@ -1,14 +1,15 @@
 package com.santisoft.inmobiliariaalone.ui.perfil;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,71 +20,73 @@ import com.santisoft.inmobiliariaalone.databinding.FragmentPerfilBinding;
 import com.santisoft.inmobiliariaalone.model.Propietario;
 
 public class PerfilFragment extends Fragment {
-
     private FragmentPerfilBinding binding;
     private PerfilViewModel pvm;
+
+    private Uri fotoSeleccionada; // content:// si elige una local
+
+    private final ActivityResultLauncher<PickVisualMediaRequest> pickImage =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(),
+                    uri -> {
+                        if (uri != null) {
+                            fotoSeleccionada = uri;
+                            Glide.with(this).load(uri)
+                                    .placeholder(R.drawable.ic_person)
+                                    .into(binding.ivFotoPerfil);
+                        }
+                    });
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
         binding = FragmentPerfilBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
 
-        final EditText etNombre   = binding.etNombre;
-        final EditText etApellido = binding.etApellido;
-        final EditText etDni      = binding.etDni;
-        final EditText etTelefono = binding.etTelefono;
-        final EditText etEmail    = binding.etEmail;
-        final ImageView ivFoto    = binding.ivFotoPerfil;
+        // Observa perfil y errores
+        pvm.getPropietario().observe(getViewLifecycleOwner(), propietario -> {
+            if (propietario != null) {
+                binding.etNombre.setText(propietario.getNombre());
+                binding.etApellido.setText(propietario.getApellido());
+                binding.etDni.setText(propietario.getDni());
+                binding.etTelefono.setText(propietario.getTelefono());
+                binding.etEmail.setText(propietario.getEmail());
 
-        pvm.getPropietario().observe(getViewLifecycleOwner(), prop -> {
-            if (prop != null) {
-                etNombre.setText(prop.getNombre());
-                etApellido.setText(prop.getApellido());
-                etDni.setText(prop.getDni());
-                etTelefono.setText(prop.getTelefono());
-                etEmail.setText(prop.getEmail());
-
-                String foto = prop.getFotoPerfil();
-                if (TextUtils.isEmpty(foto)) {
-                    ivFoto.setImageResource(R.drawable.ic_person); // fallback local
-                } else {
-                    Glide.with(requireContext())
-                            .load(foto)
-                            .placeholder(R.drawable.ic_person)
-                            .error(R.drawable.ic_person)
-                            .into(ivFoto);
-                }
+                Glide.with(this)
+                        .load(propietario.getFotoPerfil())
+                        .placeholder(R.drawable.ic_person)
+                        .into(binding.ivFotoPerfil);
             }
         });
+        pvm.getError().observe(getViewLifecycleOwner(),
+                msg -> { if (msg!=null && !msg.isEmpty()) toast(msg); });
+        pvm.getExito().observe(getViewLifecycleOwner(),
+                ok -> { if (Boolean.TRUE.equals(ok)) toast("Perfil actualizado"); });
 
-        pvm.getMensaje().observe(getViewLifecycleOwner(), msg -> {
-            if (!TextUtils.isEmpty(msg)) {
-                Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
-                pvm.clearMensaje(); // evita que se repita al volver al fragment
-            }
-        });
+        // Botón cambiar foto
+        binding.btnCambiarFoto.setOnClickListener(v ->
+                pickImage.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build())
+        );
 
+        // Guardar cambios
         binding.btnActualizar.setOnClickListener(v -> {
-            Propietario body = pvm.getPropietario().getValue();
-            if (body == null) return;
-
-            body.setNombre(etNombre.getText().toString().trim());
-            body.setApellido(etApellido.getText().toString().trim());
-            body.setDni(etDni.getText().toString().trim());
-            body.setTelefono(etTelefono.getText().toString().trim());
-            body.setEmail(etEmail.getText().toString().trim());
-            // body.setFotoPerfil(...) // si luego agregás edición de foto
-
-            pvm.actualizarPerfil(body);
+            Propietario body = new Propietario();
+            body.setNombre(binding.etNombre.getText().toString().trim());
+            body.setApellido(binding.etApellido.getText().toString().trim());
+            body.setDni(binding.etDni.getText().toString().trim());
+            body.setTelefono(binding.etTelefono.getText().toString().trim());
+            body.setEmail(binding.etEmail.getText().toString().trim());
+            if (fotoSeleccionada != null) {
+                body.setFotoPerfil(fotoSeleccionada.toString()); // content:// o url
+            }
+            pvm.actualizar(body);
         });
 
-        return root;
+        return binding.getRoot();
     }
+
+    private void toast(String m){ Toast.makeText(getContext(), m, Toast.LENGTH_SHORT).show(); }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
+    public void onDestroyView() { super.onDestroyView(); binding = null; }
 }
