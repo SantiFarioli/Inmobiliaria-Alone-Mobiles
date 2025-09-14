@@ -43,8 +43,9 @@ public class DetalleInmuebleFragment extends Fragment {
 
 
                 if (binding.tvEstado != null) {
-                    String estado = inmueble.getEstado();
-                    binding.tvEstado.setText(estado == null ? "-" : estado);
+                    boolean disp = "disponible".equalsIgnoreCase(inmueble.getEstado());
+                    int color = androidx.core.content.ContextCompat.getColor(requireContext(), disp ? R.color.teal_200 : com.google.android.material.R.color.design_default_color_error);
+                    binding.tvEstado.setTextColor(color);
                 }
 
                 // Foto: soporta URL o content:// del picker

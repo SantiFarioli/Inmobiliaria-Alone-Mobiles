@@ -1,36 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="12dp"
-    app:cardElevation="2dp"
-    app:cardCornerRadius="12dp">
+    app:cardCornerRadius="16dp"
+    app:cardUseCompatPadding="true">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="12dp">
 
         <TextView
             android:id="@+id/tvDireccion"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:text="Dirección"
             android:textStyle="bold"
-            android:textSize="16sp"/>
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnVerDetalle"
+            android:layout_marginEnd="8dp"/>
 
         <TextView
             android:id="@+id/tvInquilino"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Inquilino"/>
+            android:text="Inquilino"
+            app:layout_constraintStart_toStartOf="@id/tvDireccion"
+            app:layout_constraintTop_toBottomOf="@id/tvDireccion"
+            app:layout_constraintEnd_toStartOf="@+id/btnVerDetalle"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"/>
 
         <TextView
             android:id="@+id/tvFechas"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Fechas"/>
-    </LinearLayout>
+            android:text="01/01/2025 - 31/12/2025"
+            app:layout_constraintStart_toStartOf="@id/tvDireccion"
+            app:layout_constraintTop_toBottomOf="@id/tvInquilino"
+            app:layout_constraintEnd_toStartOf="@+id/btnVerDetalle"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/tvMonto"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="$ 0.0"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/tvDireccion"
+            app:layout_constraintTop_toBottomOf="@id/tvFechas"
+            app:layout_constraintEnd_toStartOf="@+id/btnVerDetalle"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Forzamos colores para que SIEMPRE se vea el texto -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerDetalle"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="VER DETALLE"
+            android:textAllCaps="true"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:cornerRadius="20dp"
+            app:backgroundTint="@color/purple_500"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>
