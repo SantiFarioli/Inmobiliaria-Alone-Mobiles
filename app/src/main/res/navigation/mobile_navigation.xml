@@ -116,5 +116,24 @@
         android:label="fragment_agregar_inmueble"
         tools:layout="@layout/fragment_agregar_inmueble" />
 
+    <fragment
+        android:id="@+id/nav_reset_password"
+        android:name="com.santisoft.inmobiliariaalone.ui.login.ResetPasswordFragment"
+        android:label="Restablecer contraseña"
+        tools:layout="@layout/activity_cambiar_password">  <!-- reusamos tu layout -->
+
+        <deepLink
+            app:uri="http://192.168.0.100:5157/api/Propietarios/{id}/restablecer-contrasena?token={token}" />
+
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="token"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
 
 </navigation>
