@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
 
@@ -29,30 +30,44 @@ public class PerfilViewModel extends AndroidViewModel {
     public LiveData<Boolean> getExito() { return exito; }
 
     private void cargarDatosPerfil() {
+        SessionManager session = new SessionManager(getApplication());
+        String token = session.getToken();
+
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.obtenerPerfil().enqueue(new Callback<Propietario>() {
-            @Override public void onResponse(Call<Propietario> call, Response<Propietario> res) {
-                if (res.isSuccessful() && res.body()!=null) propietario.postValue(res.body());
-                else error.postValue("No se pudo cargar el perfil.");
+            @Override
+            public void onResponse(Call<Propietario> call, Response<Propietario> res) {
+                if (res.isSuccessful() && res.body() != null)
+                    propietario.postValue(res.body());
+                else
+                    error.postValue("No se pudo cargar el perfil.");
             }
-            @Override public void onFailure(Call<Propietario> call, Throwable t) {
+
+            @Override
+            public void onFailure(Call<Propietario> call, Throwable t) {
                 error.postValue(t.getMessage());
             }
         });
     }
 
-    public void actualizar(Propietario body){
+    public void actualizar(Propietario body) {
+        SessionManager session = new SessionManager(getApplication());
+        String token = session.getToken();
+
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.propietarioUpdate(body).enqueue(new Callback<Propietario>() {
-            @Override public void onResponse(Call<Propietario> c, Response<Propietario> r) {
-                if (r.isSuccessful() && r.body()!=null) {
+            @Override
+            public void onResponse(Call<Propietario> c, Response<Propietario> r) {
+                if (r.isSuccessful() && r.body() != null) {
                     propietario.postValue(r.body());
                     exito.postValue(true);
                 } else {
                     error.postValue("No se pudo actualizar el perfil");
                 }
             }
-            @Override public void onFailure(Call<Propietario> c, Throwable t) {
+
+            @Override
+            public void onFailure(Call<Propietario> c, Throwable t) {
                 error.postValue(t.getMessage());
             }
         });

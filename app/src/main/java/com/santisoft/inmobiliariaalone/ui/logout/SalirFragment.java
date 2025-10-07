@@ -14,52 +14,42 @@ import android.view.ViewGroup;
 
 import com.santisoft.inmobiliariaalone.MainActivity;
 import com.santisoft.inmobiliariaalone.R;
+import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.FragmentSalirBinding;
-
 
 public class SalirFragment extends Fragment {
     private FragmentSalirBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         binding = FragmentSalirBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        // Mostrar el diálogo de confirmación cuando se acceda a esta vista
         showExitConfirmationDialog();
-
         return root;
     }
 
     private void showExitConfirmationDialog() {
-        // Crear el cuadro de diálogo
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Confirmación de salida");
-        builder.setMessage("¿Está seguro de que desea salir?");
+        builder.setMessage("¿Está seguro de que desea cerrar sesión?");
 
-        // Opción "Sí"
         builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Salir de la aplicación
-                getActivity().finishAffinity(); // Cierra todas las actividades
+                SessionManager session = new SessionManager(requireContext());
+                session.clear(); // ✅ limpiar token y datos
+                getActivity().finishAffinity();
             }
         });
 
-        // Opción "No"
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Redirigir al fragmento de Farmacias
                 Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.putExtra("fragment", "nav_pharmacy"); // Opcional: indica qué fragmento mostrar
                 startActivity(intent);
             }
         });
 
-        // Mostrar el cuadro de diálogo
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        builder.create().show();
     }
 
     @Override

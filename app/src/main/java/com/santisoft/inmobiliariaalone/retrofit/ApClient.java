@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.santisoft.inmobiliariaalone.auth.TokenStore;
+import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
 import com.santisoft.inmobiliariaalone.model.Inquilino;
@@ -34,18 +34,17 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public class ApClient {
-    // Cambiá si corresponde (emulador: http://10.0.2.2:5157/api/)
+    // ⚙️ Dirección base (ajustá según tu servidor)
     private static final String URL_BASE = "http://192.168.0.100:5157/api/";
 
     private static Gson gson() {
         return new GsonBuilder()
                 .setLenient()
-                // Muy importante: el backend devuelve "yyyy-MM-dd'T'HH:mm:ss"
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
                 .create();
     }
 
-    // ---- Retrofit sin auth (login / solicitar reset) ----
+
     public static InmobliariaService getInmobiliariaService() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(URL_BASE)
@@ -55,17 +54,26 @@ public class ApClient {
         return retrofit.create(InmobliariaService.class);
     }
 
-    // ---- Retrofit con auth automática (para el resto) ----
+
     public static InmobliariaService getInmobiliariaService(Context ctx) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new Interceptor() {
-                    @Override public Response intercept(Chain chain) throws IOException {
-                        String token = TokenStore.get(ctx);
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        SessionManager session = new SessionManager(ctx);
+                        String token = session.getToken();
+
                         Request original = chain.request();
                         Request.Builder builder = original.newBuilder();
+
+                        builder.header("Accept", "application/json");
                         if (token != null && !token.isEmpty()) {
-                            builder.header("Authorization", "Bearer " + token);
+                            builder.header("Authorization", token);
                         }
+
+                        // 👇 Log opcional para depurar (comentá en producción)
+                        // android.util.Log.d("API", "Token usado: " + token);
+
                         return chain.proceed(builder.build());
                     }
                 })
@@ -81,11 +89,15 @@ public class ApClient {
         return retrofit.create(InmobliariaService.class);
     }
 
+
     public interface InmobliariaService {
-        // ---------- Propietarios (auth / perfil / reset) ----------
+        // ---------- Propietarios ----------
         @FormUrlEncoded
         @POST("Propietarios/login")
-        Call<LoginResponse> login(@Field("Usuario") String usuario, @Field("Clave") String clave);
+        Call<LoginResponse> login(
+                @Field("Usuario") String usuario,
+                @Field("Clave") String clave
+        );
 
         @GET("Propietarios/perfil")
         Call<Propietario> obtenerPerfil();
@@ -95,8 +107,10 @@ public class ApClient {
         Call<ResponseBody> solicitarRecuperacion(@Field("email") String email);
 
         @POST("Propietarios/{id}/restablecer-contrasena")
-        Call<ResponseBody> restablecerContrasena(@Path("id") int id,
-                                                 @Body RestablecerContrasenaRequest request);
+        Call<ResponseBody> restablecerContrasena(
+                @Path("id") int id,
+                @Body RestablecerContrasenaRequest request
+        );
 
         @PUT("Propietarios/perfil")
         Call<Propietario> propietarioUpdate(@Body Propietario body);
@@ -121,7 +135,7 @@ public class ApClient {
         @GET("Contratos")
         Call<List<Contrato>> contratosGetAll();
 
-        // OJO: coincide con tu controlador [HttpGet("vigentes/mios")]
+        // coincide con tu controlador [HttpGet("vigentes/mios")]
         @GET("Contratos/vigentes/mios")
         Call<List<Contrato>> contratosVigentesMios();
 

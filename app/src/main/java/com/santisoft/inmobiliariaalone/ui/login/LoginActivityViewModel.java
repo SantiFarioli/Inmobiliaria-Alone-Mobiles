@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
 import com.santisoft.inmobiliariaalone.MainActivity;
-import com.santisoft.inmobiliariaalone.auth.TokenStore;          // ⬅️ IMPORTANTE
+import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
 
@@ -23,7 +23,6 @@ public class LoginActivityViewModel extends AndroidViewModel {
     }
 
     public void llamarIniciarSesion(String email, String password) {
-        // Login usa el service SIN interceptor (todavía no hay token)
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService();
         Log.d("salida", "Llamando a la API con el email: " + email);
 
@@ -31,12 +30,11 @@ public class LoginActivityViewModel extends AndroidViewModel {
             @Override
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    String token = response.body().getToken();
-                    // ⬇️ Guardamos el token para que el interceptor lo use en adelante
-                    TokenStore.save(getApplication(), token);
+                    // ✅ Guardamos toda la sesión (token, nombre, email)
+                    SessionManager session = new SessionManager(getApplication());
+                    session.saveSession(response.body());
 
-                    // (Opcional) No loguees el token completo en producción
-                    Log.d("Login", "Token guardado (prefix): " + (token != null ? token.substring(0, Math.min(12, token.length())) + "..." : "null"));
+                    Log.d("Login", "Token guardado correctamente.");
                     Toast.makeText(getApplication(), "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
 
                     iniciarMainActivity();
@@ -48,15 +46,14 @@ public class LoginActivityViewModel extends AndroidViewModel {
 
             @Override
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
-                Log.d("Login", "Error: " + t.getMessage());
-                Toast.makeText(getApplication(), "Error de servidor", Toast.LENGTH_SHORT).show();
+                Log.e("Login", "Error: " + t.getMessage());
+                Toast.makeText(getApplication(), "Error de conexión con el servidor", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void iniciarMainActivity() {
         Intent intent = new Intent(getApplication(), MainActivity.class);
-        // Limpia el back stack para que no vuelva a Login con "Atrás"
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         getApplication().startActivity(intent);
     }
