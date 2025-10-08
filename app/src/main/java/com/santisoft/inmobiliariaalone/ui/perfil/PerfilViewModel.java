@@ -1,7 +1,6 @@
 package com.santisoft.inmobiliariaalone.ui.perfil;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -29,38 +28,45 @@ public class PerfilViewModel extends AndroidViewModel {
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getExito() { return exito; }
 
-    private void cargarDatosPerfil() {
-        SessionManager session = new SessionManager(getApplication());
-        String token = session.getToken();
-
+    // 🔹 1. Cargar perfil desde el backend
+    public void cargarDatosPerfil() {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.obtenerPerfil().enqueue(new Callback<Propietario>() {
             @Override
             public void onResponse(Call<Propietario> call, Response<Propietario> res) {
-                if (res.isSuccessful() && res.body() != null)
-                    propietario.postValue(res.body());
-                else
+                if (res.isSuccessful() && res.body() != null) {
+                    Propietario p = res.body();
+                    propietario.postValue(p);
+
+                    // 🔹 Guardamos localmente el perfil (nombre, email, id, avatar)
+                    SessionManager session = new SessionManager(getApplication());
+                    session.updateProfileData(p);
+                } else {
                     error.postValue("No se pudo cargar el perfil.");
+                }
             }
 
             @Override
             public void onFailure(Call<Propietario> call, Throwable t) {
-                error.postValue(t.getMessage());
+                error.postValue("Error al conectar: " + t.getMessage());
             }
         });
     }
 
+    // 🔹 2. Actualizar perfil (PUT)
     public void actualizar(Propietario body) {
-        SessionManager session = new SessionManager(getApplication());
-        String token = session.getToken();
-
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.propietarioUpdate(body).enqueue(new Callback<Propietario>() {
             @Override
             public void onResponse(Call<Propietario> c, Response<Propietario> r) {
                 if (r.isSuccessful() && r.body() != null) {
-                    propietario.postValue(r.body());
+                    Propietario actualizado = r.body();
+                    propietario.postValue(actualizado);
                     exito.postValue(true);
+
+                    // 🔹 Actualizamos los datos persistentes (SessionManager)
+                    SessionManager session = new SessionManager(getApplication());
+                    session.updateProfileData(actualizado);
                 } else {
                     error.postValue("No se pudo actualizar el perfil");
                 }
@@ -68,7 +74,7 @@ public class PerfilViewModel extends AndroidViewModel {
 
             @Override
             public void onFailure(Call<Propietario> c, Throwable t) {
-                error.postValue(t.getMessage());
+                error.postValue("Error de conexión: " + t.getMessage());
             }
         });
     }
