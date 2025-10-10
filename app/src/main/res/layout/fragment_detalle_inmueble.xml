@@ -2,75 +2,93 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
+        <!-- 🏡 Tarjeta principal -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDetalle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
             app:cardUseCompatPadding="true"
-            app:cardCornerRadius="16dp">
+            app:strokeColor="@color/teal_200"
+            app:strokeWidth="1dp"
+            android:layout_marginBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
-                <!-- Título -->
+                <!-- Título centrado -->
                 <TextView
                     android:id="@+id/tvTitulo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Información del inmueble"
                     android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:paddingBottom="8dp"/>
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp" />
+
+                <!-- Imagen -->
+                <ImageView
+                    android:id="@+id/ivFoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/card_bg_gradient"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="Foto del inmueble"
+                    android:clipToOutline="true" />
 
                 <!-- Dirección -->
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:text="Dirección"
                     android:textColor="#777"
-                    android:textSize="12sp"/>
-
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
                 <TextView
                     android:id="@+id/tvDireccion"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Precio -->
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:text="Precio"
                     android:textColor="#777"
-                    android:textSize="12sp"/>
-
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
                 <TextView
                     android:id="@+id/tvPrecio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="16sp"
-                    android:paddingBottom="4dp"/>
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Estado -->
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
                     android:text="Estado"
                     android:textColor="#777"
-                    android:textSize="12sp"/>
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
                 <TextView
                     android:id="@+id/tvEstado"
@@ -78,54 +96,55 @@
                     android:layout_height="wrap_content"
                     android:text="disponible"
                     android:textStyle="bold"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp"
-                    android:layout_marginTop="2dp"
-                    android:background="@drawable/rounded_background"/>
+                    android:textSize="15sp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/bg_estado_label" />
 
-                <!-- Etiquetas -->
+                <!-- Chips -->
                 <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:singleLine="true">
+                    app:singleLine="true"
+                    android:layout_gravity="center">
 
-                    <!-- ⚠️ Chips con width/height + estilos M2 -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chUso"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:text="Uso" />
+                        android:text="Uso"
+                        android:textSize="13sp"
+                        app:chipCornerRadius="12dp"
+                        app:chipBackgroundColor="@color/card_avail_light" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chTipo"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:text="Tipo" />
+                        android:text="Tipo"
+                        android:textSize="13sp"
+                        app:chipCornerRadius="12dp"
+                        app:chipBackgroundColor="@color/card_avail_light" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chAmbientes"
+                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
-                        android:text="Ambientes" />
-                </com.google.android.material.chip.ChipGroup>
+                        android:text="Ambientes"
+                        android:textSize="13sp"
+                        app:chipCornerRadius="12dp"
+                        app:chipBackgroundColor="@color/card_avail_light" />
 
-                <!-- Foto -->
-                <ImageView
-                    android:id="@+id/ivFoto"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginTop="12dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/casa3" />
+                </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
     </LinearLayout>
 </ScrollView>

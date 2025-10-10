@@ -2,107 +2,131 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#FAFAFA">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
 
-        <!-- Título -->
-        <TextView
-            android:id="@+id/tvTituloAgregar"
+        <!-- 🏡 Card principal -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAgregarInmueble"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Crear inmueble"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:paddingBottom="12dp" />
+            app:cardCornerRadius="18dp"
+            app:cardElevation="8dp"
+            app:cardUseCompatPadding="true"
+            app:strokeColor="@color/teal_200"
+            app:strokeWidth="1dp"
+            android:layout_marginBottom="24dp">
 
-        <!-- Campos -->
-        <EditText
-            android:id="@+id/etDireccion"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Dirección" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-        <EditText
-            android:id="@+id/etPrecio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="numberDecimal"
-            android:hint="Precio" />
+                <!-- Título -->
+                <TextView
+                    android:id="@+id/tvTituloAgregar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Crear inmueble"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp" />
 
-        <EditText
-            android:id="@+id/etUso"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Uso (residencial/comercial)" />
+                <!-- Campos -->
+                <EditText
+                    android:id="@+id/etDireccion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Dirección"
+                    android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/etTipo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tipo (casa/departamento)" />
+                <EditText
+                    android:id="@+id/etPrecio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Precio"
+                    android:inputType="numberDecimal"
+                    android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/etAmbientes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="Ambientes" />
+                <EditText
+                    android:id="@+id/etUso"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Uso (residencial/comercial)"
+                    android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/etEstado"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Estado (disponible/no disponible)" />
+                <EditText
+                    android:id="@+id/etTipo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tipo (casa/departamento)"
+                    android:layout_marginBottom="8dp" />
 
-        <EditText
-            android:id="@+id/etImagen"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="URL de la imagen (opcional)" />
+                <EditText
+                    android:id="@+id/etAmbientes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Ambientes"
+                    android:inputType="number"
+                    android:layout_marginBottom="8dp" />
 
-        <!-- Preview -->
-        <ImageView
-            android:id="@+id/ivPreview"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginTop="8dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/casa3" />
+                <EditText
+                    android:id="@+id/etEstado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Estado (disponible/no disponible)"
+                    android:layout_marginBottom="8dp" />
 
+                <EditText
+                    android:id="@+id/etImagen"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="URL de la imagen (opcional)"
+                    android:layout_marginBottom="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnElegirFoto"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Agregar foto"
-            android:textAlignment="center"
-            android:textAllCaps="false"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            app:strokeColor="?attr/colorPrimary"
-            android:layout_gravity="center_horizontal"
-            app:strokeWidth="1dp" />
+                <!-- Preview -->
+                <ImageView
+                    android:id="@+id/ivPreview"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginVertical="10dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/card_bg_gradient"
+                    android:src="@drawable/casa1" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnConfirmarCrearInmueble"
-            style="@style/Widget.Material3.Button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:text="Crear inmueble"
-            android:textSize="20dp"
-            android:textAllCaps="false" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnElegirFoto"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="Agregar foto"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/purple_500"
+                    android:layout_marginTop="4dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnConfirmarCrearInmueble"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Crear inmueble"
+                    android:textAllCaps="false"
+                    android:textSize="18sp"
+                    android:layout_marginTop="16dp"
+                    android:paddingVertical="10dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </ScrollView>

@@ -7,7 +7,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
@@ -32,9 +31,6 @@ public class InmueblesViewModel extends AndroidViewModel {
     public LiveData<String> getError() { return error; }
 
     public void cargar() {
-        SessionManager session = new SessionManager(getApplication());
-        String token = session.getToken();
-
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
 
         api.inmueblesGetAll().enqueue(new Callback<List<Inmueble>>() {
@@ -103,6 +99,10 @@ public class InmueblesViewModel extends AndroidViewModel {
             return;
         }
 
+        if (!disponible) {
+            error.postValue("Propiedad no disponible");
+        }
+
         String nuevo = disponible ? "disponible" : "no disponible";
         String previo = item.getEstado();
         item.setEstado(nuevo);
@@ -121,7 +121,7 @@ public class InmueblesViewModel extends AndroidViewModel {
             @Override
             public void onFailure(Call<ResponseBody> c, Throwable t) {
                 item.setEstado(previo);
-                error.postValue(t.getMessage());
+                error.postValue("Error de conexión: " + t.getMessage());
                 lista.postValue(new ArrayList<>(lista.getValue()));
             }
         });

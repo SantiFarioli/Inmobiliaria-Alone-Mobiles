@@ -65,13 +65,18 @@ public class AgregarInmuebleFragment extends Fragment {
             body.setPrecio(precio);
             body.setEstado(est.isEmpty() ? "disponible" : est.toLowerCase());
 
-            // Prioridad: si el usuario eligió imagen local -> la guardamos como string (content://...)
-            // Si no, usamos la URL si cargó algo.
             if (fotoSeleccionadaUri != null) {
-                body.setFoto(fotoSeleccionadaUri.toString());
+                // Guardar una copia segura en memoria interna
+                String localPath = com.santisoft.inmobiliariaalone.util.ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionadaUri);
+                if (localPath != null) {
+                    body.setFoto(localPath);
+                } else {
+                    body.setFoto(fotoSeleccionadaUri.toString()); // fallback
+                }
             } else if (!url.isEmpty()) {
                 body.setFoto(url);
             }
+
 
             vm.crear(requireContext(), body);
         });

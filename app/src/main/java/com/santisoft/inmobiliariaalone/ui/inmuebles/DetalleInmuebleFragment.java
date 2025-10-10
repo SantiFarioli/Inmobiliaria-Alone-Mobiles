@@ -7,16 +7,23 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.databinding.FragmentDetalleInmuebleBinding;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
+import com.santisoft.inmobiliariaalone.retrofit.ApClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DetalleInmuebleFragment extends Fragment {
 
     private FragmentDetalleInmuebleBinding binding;
+    private int idInmueble;
 
     @Nullable
     @Override
@@ -32,31 +39,47 @@ public class DetalleInmuebleFragment extends Fragment {
         if (getArguments() != null) {
             Inmueble inmueble = (Inmueble) getArguments().getSerializable("inmueble");
             if (inmueble != null) {
-
-
-                binding.tvTitulo.setText("Información del inmueble");
-                binding.tvDireccion.setText(inmueble.getDireccion());
-                binding.tvPrecio.setText("$ " + inmueble.getPrecio());
-                binding.chUso.setText(inmueble.getUso());
-                binding.chTipo.setText(inmueble.getTipo());
-                binding.chAmbientes.setText(String.valueOf(inmueble.getAmbientes()));
-
-
-                if (binding.tvEstado != null) {
-                    boolean disp = "disponible".equalsIgnoreCase(inmueble.getEstado());
-                    int color = androidx.core.content.ContextCompat.getColor(requireContext(), disp ? R.color.teal_200 : com.google.android.material.R.color.design_default_color_error);
-                    binding.tvEstado.setTextColor(color);
-                }
-
-                // Foto: soporta URL o content:// del picker
-                String foto = inmueble.getFoto(); // alias de getImagen()
-                Glide.with(this)
-                        .load(foto == null || foto.isEmpty() ? null : foto)
-                        .placeholder(R.drawable.casa1)
-                        .error(R.drawable.casa2)
-                        .into(binding.ivFoto);
+                idInmueble = inmueble.getIdInmueble();
+                cargarDetalle(idInmueble);
             }
         }
+    }
+
+    private void cargarDetalle(int id) {
+        ApClient.InmobliariaService api = ApClient.getInmobiliariaService(requireContext());
+        api.inmuebleGet(id).enqueue(new Callback<Inmueble>() {
+            @Override
+            public void onResponse(Call<Inmueble> call, Response<Inmueble> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    mostrarInmueble(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Inmueble> call, Throwable t) { }
+        });
+    }
+
+    private void mostrarInmueble(Inmueble inmueble) {
+        binding.tvTitulo.setText("Información del inmueble");
+        binding.tvDireccion.setText(inmueble.getDireccion());
+        binding.tvPrecio.setText("$ " + inmueble.getPrecio());
+        binding.chUso.setText(inmueble.getUso());
+        binding.chTipo.setText(inmueble.getTipo());
+        binding.chAmbientes.setText(String.valueOf(inmueble.getAmbientes()));
+
+        boolean disponible = "disponible".equalsIgnoreCase(inmueble.getEstado());
+        binding.tvEstado.setText(disponible ? "disponible" : "no disponible");
+        int color = ContextCompat.getColor(requireContext(),
+                disponible ? R.color.estado_ok : R.color.estado_error);
+        binding.tvEstado.setTextColor(color);
+
+        String foto = inmueble.getFoto();
+        Glide.with(this)
+                .load(foto == null || foto.isEmpty() ? null : foto)
+                .placeholder(R.drawable.casa1)
+                .error(R.drawable.casa2)
+                .into(binding.ivFoto);
     }
 
     @Override
