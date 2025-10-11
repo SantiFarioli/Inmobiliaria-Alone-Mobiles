@@ -21,6 +21,7 @@ import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.FragmentPerfilBinding;
 import com.santisoft.inmobiliariaalone.model.Propietario;
+import com.santisoft.inmobiliariaalone.util.ImageUtils;
 
 public class PerfilFragment extends Fragment {
     private FragmentPerfilBinding binding;
@@ -50,27 +51,29 @@ public class PerfilFragment extends Fragment {
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
         session = new SessionManager(requireContext());
 
-        // Mostrar cache local primero
-        binding.etNombre.setText(session.getNombre());
-        binding.etEmail.setText(session.getEmail());
+        // Cache local primero (rápido)
+        binding.tilNombre.getEditText().setText(session.getNombre());
+        binding.tilEmail.getEditText().setText(session.getEmail());
         String avatar = session.getFotoPerfil();
         if (avatar != null && !avatar.isEmpty()) {
             Glide.with(this)
                     .load(avatar)
                     .placeholder(R.drawable.ic_person)
                     .into(binding.ivFotoPerfil);
+        } else {
+            binding.ivFotoPerfil.setImageResource(R.drawable.ic_person);
         }
 
-        // Observers
+        // Observers (clases anónimas, como pide el profe)
         pvm.getPropietario().observe(getViewLifecycleOwner(), new Observer<Propietario>() {
             @Override
             public void onChanged(Propietario propietario) {
                 if (propietario != null) {
-                    binding.etNombre.setText(propietario.getNombre());
-                    binding.etApellido.setText(propietario.getApellido());
-                    binding.etDni.setText(propietario.getDni());
-                    binding.etTelefono.setText(propietario.getTelefono());
-                    binding.etEmail.setText(propietario.getEmail());
+                    safeSet(binding.tilNombre, propietario.getNombre());
+                    safeSet(binding.tilApellido, propietario.getApellido());
+                    safeSet(binding.tilDni, propietario.getDni());
+                    safeSet(binding.tilTelefono, propietario.getTelefono());
+                    safeSet(binding.tilEmail, propietario.getEmail());
 
                     Glide.with(PerfilFragment.this)
                             .load(propietario.getFotoPerfil())
@@ -98,7 +101,7 @@ public class PerfilFragment extends Fragment {
             }
         });
 
-        // Botón cambiar foto
+        // Cambiar foto
         binding.btnCambiarFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,20 +111,27 @@ public class PerfilFragment extends Fragment {
             }
         });
 
-        // Botón guardar
+        // Guardar
         binding.btnActualizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Propietario body = new Propietario();
-                body.setNombre(binding.etNombre.getText().toString().trim());
-                body.setApellido(binding.etApellido.getText().toString().trim());
-                body.setDni(binding.etDni.getText().toString().trim());
-                body.setTelefono(binding.etTelefono.getText().toString().trim());
-                body.setEmail(binding.etEmail.getText().toString().trim());
+                body.setNombre(getText(binding.tilNombre));
+                body.setApellido(getText(binding.tilApellido));
+                body.setDni(getText(binding.tilDni));
+                body.setTelefono(getText(binding.tilTelefono));
+                body.setEmail(getText(binding.tilEmail));
 
+                // Si eligió nueva foto con el picker, la persistimos como file:// (evita error de permiso)
                 if (fotoSeleccionada != null) {
-                    body.setFotoPerfil(fotoSeleccionada.toString());
+                    String localPath = ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionada);
+                    if (localPath != null) {
+                        body.setFotoPerfil(localPath);
+                    } else {
+                        body.setFotoPerfil(fotoSeleccionada.toString()); // fallback
+                    }
                 } else if (session.getFotoPerfil() != null) {
+                    // Si no cambió, mantengo la que había
                     body.setFotoPerfil(session.getFotoPerfil());
                 }
 
@@ -130,6 +140,16 @@ public class PerfilFragment extends Fragment {
         });
 
         return binding.getRoot();
+    }
+
+    private void safeSet(com.google.android.material.textfield.TextInputLayout til, String v){
+        if (til != null && til.getEditText() != null) {
+            til.getEditText().setText(v == null ? "" : v);
+        }
+    }
+
+    private String getText(com.google.android.material.textfield.TextInputLayout til){
+        return til!=null && til.getEditText()!=null ? til.getEditText().getText().toString().trim() : "";
     }
 
     private void toast(String m) {

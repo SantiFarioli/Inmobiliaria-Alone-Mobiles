@@ -28,7 +28,6 @@ public class PerfilViewModel extends AndroidViewModel {
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getExito() { return exito; }
 
-    // 🔹 1. Cargar perfil desde el backend
     public void cargarDatosPerfil() {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.obtenerPerfil().enqueue(new Callback<Propietario>() {
@@ -38,7 +37,6 @@ public class PerfilViewModel extends AndroidViewModel {
                     Propietario p = res.body();
                     propietario.postValue(p);
 
-                    // 🔹 Guardamos localmente el perfil (nombre, email, id, avatar)
                     SessionManager session = new SessionManager(getApplication());
                     session.updateProfileData(p);
                 } else {
@@ -53,7 +51,6 @@ public class PerfilViewModel extends AndroidViewModel {
         });
     }
 
-    // 🔹 2. Actualizar perfil (PUT)
     public void actualizar(Propietario body) {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.propietarioUpdate(body).enqueue(new Callback<Propietario>() {
@@ -64,7 +61,6 @@ public class PerfilViewModel extends AndroidViewModel {
                     propietario.postValue(actualizado);
                     exito.postValue(true);
 
-                    // 🔹 Actualizamos los datos persistentes (SessionManager)
                     SessionManager session = new SessionManager(getApplication());
                     session.updateProfileData(actualizado);
                 } else {

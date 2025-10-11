@@ -120,7 +120,7 @@
         android:id="@+id/nav_reset_password"
         android:name="com.santisoft.inmobiliariaalone.ui.login.ResetPasswordFragment"
         android:label="Restablecer contraseña"
-        tools:layout="@layout/activity_cambiar_password">  <!-- reusamos tu layout -->
+        tools:layout="@layout/activity_cambiar_password">
 
         <deepLink
             app:uri="http://192.168.0.100:5157/api/Propietarios/{id}/restablecer-contrasena?token={token}" />

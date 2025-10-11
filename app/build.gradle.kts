@@ -25,34 +25,52 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     buildFeatures {
         viewBinding = true
     }
 }
 
 dependencies {
+    // AndroidX Core
     implementation(libs.appcompat)
-    implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.activity)
+
+    // Material 3
+    implementation("com.google.android.material:material:1.11.0")
+
+    // ViewModel + LiveData
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+
+    // Navigation Component
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation(libs.legacy.support.v4)
+
+    // Google Maps
     implementation(libs.play.services.maps)
-    implementation(libs.converter.gson)
+
+    // Retrofit + Gson
     implementation(libs.retrofit)
+    implementation(libs.converter.gson)
     implementation(libs.converter.scalars)
-    implementation(libs.activity)
+
+    // OkHttp + Logging Interceptor
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
+    // Glide (imágenes)
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation("com.github.bumptech.glide:glide:4.12.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
-    implementation("com.squareup.okhttp3:okhttp:4.9.3")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3") // Para el interceptor de logs, si lo necesitas
 }

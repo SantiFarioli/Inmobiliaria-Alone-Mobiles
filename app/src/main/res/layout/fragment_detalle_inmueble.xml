@@ -47,10 +47,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="220dp"
                     android:scaleType="centerCrop"
-                    android:background="@drawable/card_bg_gradient"
-                    android:layout_marginBottom="16dp"
                     android:contentDescription="Foto del inmueble"
-                    android:clipToOutline="true" />
+                    android:background="@drawable/card_bg_gradient"
+                    android:clipToOutline="true"
+                    android:layout_marginBottom="16dp" />
 
                 <!-- Dirección -->
                 <TextView
@@ -59,6 +59,7 @@
                     android:textSize="13sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
                 <TextView
                     android:id="@+id/tvDireccion"
                     android:layout_width="match_parent"
@@ -74,6 +75,7 @@
                     android:textSize="13sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
                 <TextView
                     android:id="@+id/tvPrecio"
                     android:layout_width="match_parent"
@@ -103,45 +105,50 @@
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/bg_estado_label" />
 
-                <!-- Chips -->
+                <!-- Chips (versión segura sin estilos antiguos) -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    app:singleLine="true"
-                    android:layout_gravity="center">
+                    android:layout_gravity="center"
+                    app:singleLine="true">
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chUso"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Uso"
+                        android:textColor="@color/black"
                         android:textSize="13sp"
                         app:chipCornerRadius="12dp"
-                        app:chipBackgroundColor="@color/card_avail_light" />
+                        app:chipBackgroundColor="@color/card_avail_light"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chTipo"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tipo"
+                        android:textColor="@color/black"
                         android:textSize="13sp"
                         app:chipCornerRadius="12dp"
-                        app:chipBackgroundColor="@color/card_avail_light" />
+                        app:chipBackgroundColor="@color/card_avail_light"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false" />
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chAmbientes"
-                        style="@style/Widget.MaterialComponents.Chip.Action"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Ambientes"
+                        android:textColor="@color/black"
                         android:textSize="13sp"
                         app:chipCornerRadius="12dp"
-                        app:chipBackgroundColor="@color/card_avail_light" />
-
+                        app:chipBackgroundColor="@color/card_avail_light"
+                        app:checkedIconVisible="false"
+                        app:closeIconVisible="false" />
                 </com.google.android.material.chip.ChipGroup>
 
             </LinearLayout>
