@@ -1,13 +1,13 @@
 package com.santisoft.inmobiliariaalone.ui.inicio;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -21,16 +21,28 @@ public class InicioViewModel extends AndroidViewModel {
 
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
-            googleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            configurarMapa(googleMap);
+        }
 
-            // Coordenadas para San Luis, La Punta
-            LatLng laPunta = new LatLng(-33.2950, -66.3356);
+        private void configurarMapa(GoogleMap googleMap) {
+            // 🌍 Tipo de mapa: híbrido (satélite + nombres de calles)
+            googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+            googleMap.getUiSettings().setZoomControlsEnabled(true);
+            googleMap.getUiSettings().setCompassEnabled(true);
+            googleMap.getUiSettings().setMapToolbarEnabled(false);
+
+            // 📍 Coordenadas: Inmobiliaria Alone (La Punta, San Luis)
+            LatLng villaAguadita = new LatLng(-33.209755, -66.300211);
+
+            // 🏠 Marker personalizado
             googleMap.addMarker(new MarkerOptions()
-                    .position(laPunta)
-                    .title("San Luis, La Punta"));
+                    .position(villaAguadita)
+                    .title("🏠 Inmobiliaria Alone")
+                    .snippet("Villa Aguadita – La Punta, San Luis")
+            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
 
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(laPunta, 15));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(villaAguadita, 16f));
         }
     }
 }
