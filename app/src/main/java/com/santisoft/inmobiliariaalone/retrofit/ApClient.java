@@ -34,7 +34,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public class ApClient {
-    // ⚙️ Dirección base (ajustá según tu servidor)
+
     private static final String URL_BASE = "http://192.168.0.100:5157/api/";
 
     private static Gson gson() {
@@ -68,11 +68,11 @@ public class ApClient {
 
                         builder.header("Accept", "application/json");
                         if (token != null && !token.isEmpty()) {
+                            if (!token.startsWith("Bearer ")) {
+                                token = "Bearer " + token;
+                            }
                             builder.header("Authorization", token);
                         }
-
-                        // 👇 Log opcional para depurar (comentá en producción)
-                        // android.util.Log.d("API", "Token usado: " + token);
 
                         return chain.proceed(builder.build());
                     }

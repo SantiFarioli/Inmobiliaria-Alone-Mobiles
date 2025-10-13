@@ -4,12 +4,16 @@ import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
+
 import com.santisoft.inmobiliariaalone.MainActivity;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
+import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -31,9 +35,28 @@ public class LoginActivityViewModel extends AndroidViewModel {
             public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     SessionManager session = new SessionManager(getApplication());
-                    session.saveSession(response.body());
-                    Toast.makeText(getApplication(), "Bienvenido ", Toast.LENGTH_SHORT).show();
-                    irAMain();
+                    session.saveSession(response.body()); // guarda token
+
+                    //  Luego pedimos el perfil autorizado
+                    ApClient.getInmobiliariaService(getApplication())
+                            .obtenerPerfil()
+                            .enqueue(new Callback<Propietario>() {
+                                @Override
+                                public void onResponse(@NonNull Call<Propietario> call, @NonNull Response<Propietario> res) {
+                                    if (res.isSuccessful() && res.body() != null) {
+                                        session.updateProfileData(res.body());
+                                    }
+                                    Toast.makeText(getApplication(), "Bienvenido", Toast.LENGTH_SHORT).show();
+                                    irAMain();
+                                }
+
+                                @Override
+                                public void onFailure(@NonNull Call<Propietario> call, @NonNull Throwable t) {
+                                    Toast.makeText(getApplication(), "Error al cargar perfil", Toast.LENGTH_SHORT).show();
+                                    irAMain();
+                                }
+                            });
+
                 } else {
                     Toast.makeText(getApplication(), "Credenciales incorrectas", Toast.LENGTH_SHORT).show();
                 }
