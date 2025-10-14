@@ -5,6 +5,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
+import com.santisoft.inmobiliariaalone.model.CambioPasswordRequest;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
 import com.santisoft.inmobiliariaalone.model.Inquilino;
@@ -101,6 +102,10 @@ public class ApClient {
 
         @GET("Propietarios/perfil")
         Call<Propietario> obtenerPerfil();
+
+        @PUT("Propietarios/cambiar-password")
+        Call<Void> cambiarPassword(@Body CambioPasswordRequest body);
+
 
         @FormUrlEncoded
         @POST("Propietarios/solicitar-restablecimiento")

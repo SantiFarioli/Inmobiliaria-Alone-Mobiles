@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.santisoft.inmobiliariaalone.R;
@@ -51,7 +52,7 @@ public class PerfilFragment extends Fragment {
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
         session = new SessionManager(requireContext());
 
-        // Cache local primero (rápido)
+        // Cache local primero
         binding.tilNombre.getEditText().setText(session.getNombre());
         binding.tilEmail.getEditText().setText(session.getEmail());
         String avatar = session.getFotoPerfil();
@@ -64,7 +65,7 @@ public class PerfilFragment extends Fragment {
             binding.ivFotoPerfil.setImageResource(R.drawable.ic_person);
         }
 
-        // Observers (clases anónimas, como pide el profe)
+        // Observers
         pvm.getPropietario().observe(getViewLifecycleOwner(), new Observer<Propietario>() {
             @Override
             public void onChanged(Propietario propietario) {
@@ -111,7 +112,7 @@ public class PerfilFragment extends Fragment {
             }
         });
 
-        // Guardar
+        // Guardar cambios
         binding.btnActualizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -139,17 +140,28 @@ public class PerfilFragment extends Fragment {
             }
         });
 
+        // 👉 NUEVO: Botón para ir al fragment de cambio de contraseña
+        binding.btnCambiarPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NavHostFragment.findNavController(PerfilFragment.this)
+                        .navigate(R.id.cambiarPasswordFragment);
+            }
+        });
+
         return binding.getRoot();
     }
 
-    private void safeSet(com.google.android.material.textfield.TextInputLayout til, String v){
+    private void safeSet(com.google.android.material.textfield.TextInputLayout til, String v) {
         if (til != null && til.getEditText() != null) {
             til.getEditText().setText(v == null ? "" : v);
         }
     }
 
-    private String getText(com.google.android.material.textfield.TextInputLayout til){
-        return til!=null && til.getEditText()!=null ? til.getEditText().getText().toString().trim() : "";
+    private String getText(com.google.android.material.textfield.TextInputLayout til) {
+        return til != null && til.getEditText() != null
+                ? til.getEditText().getText().toString().trim()
+                : "";
     }
 
     private void toast(String m) {

@@ -18,6 +18,13 @@
         tools:layout="@layout/fragment_perfil" />
 
     <fragment
+        android:id="@+id/cambiarPasswordFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.perfil.CambiarPasswordFragment"
+        android:label="Cambiar contraseña"
+        tools:layout="@layout/fragment_cambiar_password" />
+
+
+    <fragment
         android:id="@+id/nav_inmuebles"
         android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.InmueblesFragment"
         android:label="@string/menu_inmuebles"

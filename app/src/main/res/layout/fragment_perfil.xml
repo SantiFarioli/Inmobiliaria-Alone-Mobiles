@@ -163,6 +163,25 @@
                     app:iconGravity="textStart"
                     app:backgroundTint="@color/teal_200" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCambiarPassword"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cambiar contraseña"
+                    android:textAllCaps="false"
+                    android:layout_marginTop="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    app:icon="@drawable/ic_lock_24"
+                    app:iconPadding="12dp"
+                    app:iconGravity="textStart"
+                    app:strokeColor="@color/teal_200"
+                    app:strokeWidth="2dp"
+                    app:iconTint="@color/teal_700"
+                    app:rippleColor="@color/teal_200"
+                    app:backgroundTint="@android:color/transparent" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
