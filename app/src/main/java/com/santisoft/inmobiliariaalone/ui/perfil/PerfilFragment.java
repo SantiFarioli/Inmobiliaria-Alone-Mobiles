@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,13 +21,17 @@ import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.FragmentPerfilBinding;
 import com.santisoft.inmobiliariaalone.model.Propietario;
+import com.santisoft.inmobiliariaalone.util.DialogUtils;
 import com.santisoft.inmobiliariaalone.util.ImageUtils;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class PerfilFragment extends Fragment {
     private FragmentPerfilBinding binding;
     private PerfilViewModel pvm;
     private Uri fotoSeleccionada;
     private SessionManager session;
+    private SweetAlertDialog loadingDialog;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickImage =
             registerForActivityResult(
@@ -65,7 +68,7 @@ public class PerfilFragment extends Fragment {
             binding.ivFotoPerfil.setImageResource(R.drawable.ic_person);
         }
 
-        // Observers
+        // Observador: perfil cargado desde la API
         pvm.getPropietario().observe(getViewLifecycleOwner(), new Observer<Propietario>() {
             @Override
             public void onChanged(Propietario propietario) {
@@ -84,20 +87,25 @@ public class PerfilFragment extends Fragment {
             }
         });
 
+        // Observador: error
         pvm.getError().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String msg) {
                 if (msg != null && !msg.isEmpty()) {
-                    toast(msg);
+                    DialogUtils.hideLoading(loadingDialog);
+                    DialogUtils.showError(requireContext(), "Error", msg);
                 }
             }
         });
 
+        // Observador: éxito
         pvm.getExito().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean ok) {
                 if (Boolean.TRUE.equals(ok)) {
-                    toast("Perfil actualizado correctamente");
+                    DialogUtils.hideLoading(loadingDialog);
+                    DialogUtils.showSuccess(requireContext(), "¡Listo!", "Perfil actualizado correctamente");
+                    pvm.resetExito();
                 }
             }
         });
@@ -123,24 +131,23 @@ public class PerfilFragment extends Fragment {
                 body.setTelefono(getText(binding.tilTelefono));
                 body.setEmail(getText(binding.tilEmail));
 
-                // Si eligió nueva foto con el picker, la persistimos como file:// (evita error de permiso)
                 if (fotoSeleccionada != null) {
                     String localPath = ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionada);
                     if (localPath != null) {
                         body.setFotoPerfil(localPath);
                     } else {
-                        body.setFotoPerfil(fotoSeleccionada.toString()); // fallback
+                        body.setFotoPerfil(fotoSeleccionada.toString());
                     }
                 } else if (session.getFotoPerfil() != null) {
-                    // Si no cambió, mantengo la que había
                     body.setFotoPerfil(session.getFotoPerfil());
                 }
 
+                loadingDialog = DialogUtils.showLoading(requireContext(), "Guardando cambios...");
                 pvm.actualizar(body);
             }
         });
 
-        // 👉 NUEVO: Botón para ir al fragment de cambio de contraseña
+        // Botón de cambio de contraseña
         binding.btnCambiarPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,6 +159,7 @@ public class PerfilFragment extends Fragment {
         return binding.getRoot();
     }
 
+    // Utilidades auxiliares
     private void safeSet(com.google.android.material.textfield.TextInputLayout til, String v) {
         if (til != null && til.getEditText() != null) {
             til.getEditText().setText(v == null ? "" : v);
@@ -159,13 +167,10 @@ public class PerfilFragment extends Fragment {
     }
 
     private String getText(com.google.android.material.textfield.TextInputLayout til) {
-        return til != null && til.getEditText() != null
-                ? til.getEditText().getText().toString().trim()
-                : "";
-    }
-
-    private void toast(String m) {
-        Toast.makeText(getContext(), m, Toast.LENGTH_SHORT).show();
+        if (til != null && til.getEditText() != null) {
+            return til.getEditText().getText().toString().trim();
+        }
+        return "";
     }
 
     @Override

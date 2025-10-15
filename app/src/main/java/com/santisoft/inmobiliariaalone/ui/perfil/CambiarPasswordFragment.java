@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.santisoft.inmobiliariaalone.databinding.FragmentCambiarPasswordBinding;
-import com.santisoft.inmobiliariaalone.model.EventoMensaje;
 import com.santisoft.inmobiliariaalone.util.DialogUtils;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
@@ -40,28 +39,24 @@ public class CambiarPasswordFragment extends Fragment {
             }
         });
 
-        // Observador
-        vm.getEvento().observe(getViewLifecycleOwner(), new Observer<EventoMensaje>() {
+        // Observador de mensajes
+        vm.getMensaje().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
-            public void onChanged(EventoMensaje e) {
+            public void onChanged(String msg) {
                 DialogUtils.hideLoading(loadingDialog);
+                CambiarPasswordViewModel.TipoMensaje tipo = vm.getTipoMensaje().getValue();
 
-                if (e == null) return;
-
-                switch (e.getTipo()) {
-                    case SUCCESS:
-                        DialogUtils.showSuccess(requireContext(), "¡Listo!", e.getTexto());
-                        break;
-                    case WARNING:
-                        DialogUtils.showWarning(requireContext(), "Atención", e.getTexto());
-                        break;
-                    case ERROR:
-                        DialogUtils.showError(requireContext(), "Error", e.getTexto());
-                        break;
+                if (tipo == CambiarPasswordViewModel.TipoMensaje.SUCCESS) {
+                    DialogUtils.showSuccess(requireContext(), "¡Listo!", msg);
+                } else if (tipo == CambiarPasswordViewModel.TipoMensaje.WARNING) {
+                    DialogUtils.showWarning(requireContext(), "Atención", msg);
+                } else {
+                    DialogUtils.showError(requireContext(), "Error", msg);
                 }
             }
         });
 
+        // Observador de éxito
         vm.getExito().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean ok) {

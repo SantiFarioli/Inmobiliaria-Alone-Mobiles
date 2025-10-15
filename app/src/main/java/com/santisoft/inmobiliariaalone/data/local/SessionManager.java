@@ -13,6 +13,9 @@ public class SessionManager {
     private static final String KEY_TOKEN = "token";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_NOMBRE = "nombre";
+    private static final String KEY_APELLIDO = "apellido";
+    private static final String KEY_DNI = "dni";
+    private static final String KEY_TELEFONO = "telefono";
     private static final String KEY_AVATAR = "foto_perfil";
 
     private final SharedPreferences prefs;
@@ -26,28 +29,49 @@ public class SessionManager {
     // Guardar sesión después del login
     public void saveSession(LoginResponse login) {
         if (login != null) {
-            // Agregamos "Bearer" por compatibilidad con Retrofit
-            editor.putString(KEY_TOKEN, "Bearer " + login.getToken());
+            // Guardamos el token con prefijo Bearer
+            if (login.getToken() != null)
+                editor.putString(KEY_TOKEN, "Bearer " + login.getToken());
 
-            if (login.getEmail() != null) editor.putString(KEY_EMAIL, login.getEmail());
-            if (login.getNombre() != null) editor.putString(KEY_NOMBRE, login.getNombre());
+            if (login.getEmail() != null)
+                editor.putString(KEY_EMAIL, login.getEmail());
+            if (login.getNombre() != null)
+                editor.putString(KEY_NOMBRE, login.getNombre());
+
             editor.apply();
         }
     }
 
-    //  Guardar info adicional del perfil (cuando obtienes el Propietario)
+    // Guardar info completa del perfil (cuando obtenés el Propietario)
     public void updateProfileData(Propietario p) {
         if (p != null) {
             editor.putInt(KEY_ID, p.getIdPropietario());
+
             if (p.getNombre() != null) editor.putString(KEY_NOMBRE, p.getNombre());
-            if (p.getApellido() != null) editor.putString("apellido", p.getApellido());
+            if (p.getApellido() != null) editor.putString(KEY_APELLIDO, p.getApellido());
+            if (p.getDni() != null) editor.putString(KEY_DNI, p.getDni());
+            if (p.getTelefono() != null) editor.putString(KEY_TELEFONO, p.getTelefono());
             if (p.getEmail() != null) editor.putString(KEY_EMAIL, p.getEmail());
             if (p.getFotoPerfil() != null) editor.putString(KEY_AVATAR, p.getFotoPerfil());
+
             editor.apply();
         }
     }
 
-    //  Getters
+    // metodo para obtener el Propietario Actual desde preferencia
+    public Propietario getPropietario() {
+        Propietario p = new Propietario();
+        p.setIdPropietario(getIdPropietario());
+        p.setNombre(getNombre());
+        p.setApellido(getApellido());
+        p.setDni(getDni());
+        p.setTelefono(getTelefono());
+        p.setEmail(getEmail());
+        p.setFotoPerfil(getFotoPerfil());
+        return p;
+    }
+
+    // Getters
     public String getToken() {
         return prefs.getString(KEY_TOKEN, null);
     }
@@ -61,7 +85,15 @@ public class SessionManager {
     }
 
     public String getApellido() {
-        return prefs.getString("apellido", "");
+        return prefs.getString(KEY_APELLIDO, "");
+    }
+
+    public String getDni() {
+        return prefs.getString(KEY_DNI, "");
+    }
+
+    public String getTelefono() {
+        return prefs.getString(KEY_TELEFONO, "");
     }
 
     public String getEmail() {
@@ -72,7 +104,7 @@ public class SessionManager {
         return prefs.getString(KEY_AVATAR, null);
     }
 
-    //  Limpiar sesión (logout)
+    // Limpiar sesión (logout)
     public void clear() {
         editor.clear().apply();
     }

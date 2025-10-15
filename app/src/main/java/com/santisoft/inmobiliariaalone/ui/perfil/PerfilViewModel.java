@@ -15,6 +15,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PerfilViewModel extends AndroidViewModel {
+
     private final MutableLiveData<Propietario> propietario = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> exito = new MutableLiveData<>(false);
@@ -28,6 +29,7 @@ public class PerfilViewModel extends AndroidViewModel {
     public LiveData<String> getError() { return error; }
     public LiveData<Boolean> getExito() { return exito; }
 
+    // Cargar datos del perfil desde la API
     public void cargarDatosPerfil() {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.obtenerPerfil().enqueue(new Callback<Propietario>() {
@@ -37,6 +39,7 @@ public class PerfilViewModel extends AndroidViewModel {
                     Propietario p = res.body();
                     propietario.postValue(p);
 
+                    // Guardar en preferencias
                     SessionManager session = new SessionManager(getApplication());
                     session.updateProfileData(p);
                 } else {
@@ -51,6 +54,7 @@ public class PerfilViewModel extends AndroidViewModel {
         });
     }
 
+    // Actualizar perfil
     public void actualizar(Propietario body) {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.propietarioUpdate(body).enqueue(new Callback<Propietario>() {
@@ -61,6 +65,7 @@ public class PerfilViewModel extends AndroidViewModel {
                     propietario.postValue(actualizado);
                     exito.postValue(true);
 
+                    // Actualizar la sesión
                     SessionManager session = new SessionManager(getApplication());
                     session.updateProfileData(actualizado);
                 } else {
@@ -73,5 +78,10 @@ public class PerfilViewModel extends AndroidViewModel {
                 error.postValue("Error de conexión: " + t.getMessage());
             }
         });
+    }
+
+    // Evita que el alert se repita al volver al fragment
+    public void resetExito() {
+        exito.postValue(false);
     }
 }
