@@ -49,9 +49,14 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        // 🔹 Mostrar nombre completo y email del propietario
+        // Mostrar nombre completo y email del propietario al iniciar
+        refrescarHeader();
+    }
+
+    // 🔹 Método reutilizable para refrescar el header dinámicamente
+    public void refrescarHeader() {
         SessionManager session = new SessionManager(this);
-        View headerView = navigationView.getHeaderView(0);
+        View headerView = binding.navView.getHeaderView(0);
 
         TextView tvNombre = headerView.findViewById(R.id.tvNombreCompleto);
         TextView tvEmail = headerView.findViewById(R.id.tvEmailPropietario);

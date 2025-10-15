@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
+import com.santisoft.inmobiliariaalone.MainActivity;
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.FragmentPerfilBinding;
@@ -105,6 +106,10 @@ public class PerfilFragment extends Fragment {
                 if (Boolean.TRUE.equals(ok)) {
                     DialogUtils.hideLoading(loadingDialog);
                     DialogUtils.showSuccess(requireContext(), "¡Listo!", "Perfil actualizado correctamente");
+
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).refrescarHeader();
+                    }
                     pvm.resetExito();
                 }
             }
