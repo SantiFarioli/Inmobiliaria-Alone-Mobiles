@@ -1,60 +1,59 @@
 package com.santisoft.inmobiliariaalone.ui.logout;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.santisoft.inmobiliariaalone.MainActivity;
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
-import com.santisoft.inmobiliariaalone.databinding.FragmentSalirBinding;
+import com.santisoft.inmobiliariaalone.ui.login.LoginActivity;
+import com.santisoft.inmobiliariaalone.util.DialogUtils;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class SalirFragment extends Fragment {
-    private FragmentSalirBinding binding;
+    private SessionManager session;
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentSalirBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        showExitConfirmationDialog();
+        session = new SessionManager(requireContext());
+        View root = inflater.inflate(R.layout.fragment_salir, container, false);
+        mostrarDialogoConfirmacion();
         return root;
     }
 
-    private void showExitConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Confirmación de salida");
-        builder.setMessage("¿Está seguro de que desea cerrar sesión?");
+    private void mostrarDialogoConfirmacion() {
+        SweetAlertDialog dialog = new SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE);
+        dialog.setTitleText("Cerrar sesión");
+        dialog.setContentText("¿Estás seguro de que deseas salir?");
+        dialog.setConfirmText("Sí, cerrar sesión");
+        dialog.setCancelText("Cancelar");
 
-        builder.setPositiveButton("Sí", new DialogInterface.OnClickListener() {
+        dialog.setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                SessionManager session = new SessionManager(requireContext());
-                session.clear(); // ✅ limpiar token y datos
-                getActivity().finishAffinity();
-            }
-        });
+            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                session.clear();
+                sweetAlertDialog.dismissWithAnimation();
 
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(getActivity(), MainActivity.class);
+                Intent intent = new Intent(requireContext(), LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                requireActivity().finish();
             }
         });
 
-        builder.create().show();
-    }
+        dialog.setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+            @Override
+            public void onClick(SweetAlertDialog sDialog) {
+                sDialog.dismissWithAnimation();
+                requireActivity().onBackPressed();
+            }
+        });
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        dialog.show();
     }
 }

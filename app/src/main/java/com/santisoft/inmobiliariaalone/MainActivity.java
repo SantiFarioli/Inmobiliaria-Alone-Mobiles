@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         refrescarHeader();
     }
 
-    // 🔹 Método reutilizable para refrescar el header dinámicamente
+    // Método reutilizable para refrescar el header dinámicamente
     public void refrescarHeader() {
         SessionManager session = new SessionManager(this);
         View headerView = binding.navView.getHeaderView(0);

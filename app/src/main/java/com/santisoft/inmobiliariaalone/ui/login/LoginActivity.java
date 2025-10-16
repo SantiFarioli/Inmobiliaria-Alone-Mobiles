@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import com.santisoft.inmobiliariaalone.MainActivity;
+import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
@@ -15,6 +17,17 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Si ya hay sesión guardada, salto directo al MainActivity
+        SessionManager session = new SessionManager(this);
+        if (session.getToken() != null && !session.getToken().isEmpty()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish(); // Evita volver atrás al login
+            return;
+        }
+
+        // Si no hay sesión, sigo con el login normal
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
