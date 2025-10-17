@@ -56,7 +56,7 @@ public class PerfilFragment extends Fragment {
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
         session = new SessionManager(requireContext());
 
-        // Cache local primero
+        // Cache local
         binding.tilNombre.getEditText().setText(session.getNombre());
         binding.tilEmail.getEditText().setText(session.getEmail());
         String avatar = session.getFotoPerfil();
@@ -125,16 +125,65 @@ public class PerfilFragment extends Fragment {
             }
         });
 
-        // Guardar cambios
+        // Guardar cambios con validaciones y detección de cambios
         binding.btnActualizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String nombre = getText(binding.tilNombre);
+                String apellido = getText(binding.tilApellido);
+                String dni = getText(binding.tilDni);
+                String telefono = getText(binding.tilTelefono);
+                String email = getText(binding.tilEmail);
+
+                // VALIDACIONES
+                if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty()) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "Los campos Nombre, Apellido y Email son obligatorios.");
+                    return;
+                }
+                if (!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "El nombre solo puede contener letras y espacios.");
+                    return;
+                }
+                if (!apellido.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "El apellido solo puede contener letras y espacios.");
+                    return;
+                }
+                if (!dni.isEmpty() && !dni.matches("^\\d{7,9}$")) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "El DNI debe tener entre 7 y 9 dígitos numéricos.");
+                    return;
+                }
+                if (!telefono.isEmpty() && !telefono.matches("^[0-9+() -]{6,}$")) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "Ingrese un número de teléfono válido.");
+                    return;
+                }
+                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "Ingrese un correo electrónico válido.");
+                    return;
+                }
+
+                // DETECCIÓN DE CAMBIOS
+                boolean sinCambios =
+                        nombre.equals(session.getNombre()) &&
+                                apellido.equals(session.getApellido()) &&
+                                dni.equals(session.getDni()) &&
+                                telefono.equals(session.getTelefono()) &&
+                                email.equals(session.getEmail()) &&
+                                (fotoSeleccionada == null ||
+                                        (session.getFotoPerfil() != null &&
+                                                fotoSeleccionada.toString().equals(session.getFotoPerfil())));
+
+                if (sinCambios) {
+                    DialogUtils.showWarning(requireContext(), "Atención", "No se detectaron cambios para guardar.");
+                    return;
+                }
+
+                // Si hay cambios, crear el body
                 Propietario body = new Propietario();
-                body.setNombre(getText(binding.tilNombre));
-                body.setApellido(getText(binding.tilApellido));
-                body.setDni(getText(binding.tilDni));
-                body.setTelefono(getText(binding.tilTelefono));
-                body.setEmail(getText(binding.tilEmail));
+                body.setNombre(nombre);
+                body.setApellido(apellido);
+                body.setDni(dni);
+                body.setTelefono(telefono);
+                body.setEmail(email);
 
                 if (fotoSeleccionada != null) {
                     String localPath = ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionada);
