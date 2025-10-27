@@ -33,8 +33,19 @@ public class PerfilViewModel extends AndroidViewModel {
     public LiveData<String> getTipoMensaje() { return tipoMensaje; }
     public LiveData<Boolean> getLoading() { return loading; }
 
-    //   Cargar datos de perfil
+    // === Limpiar mensajes después de mostrarlos ===
+    public void limpiarMensajes() {
+        mensaje.setValue(null);
+        tipoMensaje.setValue(null);
+    }
 
+    // === Helper para emitir tipo + mensaje sincrónicamente ===
+    private void emitirMensaje(String tipo, String msg) {
+        tipoMensaje.setValue(tipo);
+        mensaje.setValue(msg);
+    }
+
+    // === Cargar datos del perfil ===
     private void cargarPerfil() {
         ApClient.getInmobiliariaService(getApplication())
                 .obtenerPerfil()
@@ -44,74 +55,62 @@ public class PerfilViewModel extends AndroidViewModel {
                         if (response.isSuccessful() && response.body() != null) {
                             propietario.postValue(response.body());
                         } else {
-                            mensaje.postValue("No se pudo cargar el perfil.");
-                            tipoMensaje.postValue("error");
+                            emitirMensaje("error", "No se pudo cargar el perfil.");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Propietario> call, Throwable t) {
-                        mensaje.postValue("Error de conexión: " + t.getMessage());
-                        tipoMensaje.postValue("error");
+                        emitirMensaje("error", "Error de conexión: " + t.getMessage());
                     }
                 });
     }
 
-    //   Validar y actualizar perfil
-
+    // === Validar y actualizar perfil ===
     public void actualizarPerfil(Propietario body) {
         // Validaciones
         if (body.getNombre() == null || body.getNombre().trim().isEmpty() ||
                 body.getApellido() == null || body.getApellido().trim().isEmpty() ||
                 body.getEmail() == null || body.getEmail().trim().isEmpty()) {
-            mensaje.postValue("Los campos Nombre, Apellido y Email son obligatorios.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "Los campos Nombre, Apellido y Email son obligatorios.");
             return;
         }
 
         if (!body.getNombre().matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
-            mensaje.postValue("El nombre solo puede contener letras y espacios.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "El nombre solo puede contener letras y espacios.");
             return;
         }
 
         if (!body.getApellido().matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
-            mensaje.postValue("El apellido solo puede contener letras y espacios.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "El apellido solo puede contener letras y espacios.");
             return;
         }
 
         if (body.getDni() != null && !body.getDni().isEmpty() && !body.getDni().matches("^\\d{7,9}$")) {
-            mensaje.postValue("El DNI debe tener entre 7 y 9 dígitos numéricos.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "El DNI debe tener entre 7 y 9 dígitos numéricos.");
             return;
         }
 
         if (body.getTelefono() != null && !body.getTelefono().isEmpty()
                 && !body.getTelefono().matches("^[0-9+() -]{6,}$")) {
-            mensaje.postValue("Ingrese un número de teléfono válido.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "Ingrese un número de teléfono válido.");
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(body.getEmail()).matches()) {
-            mensaje.postValue("Ingrese un correo electrónico válido.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "Ingrese un correo electrónico válido.");
             return;
         }
 
         // Verificar cambios con respecto al perfil actual
         Propietario actual = propietario.getValue();
         if (actual != null && !huboCambios(actual, body)) {
-            mensaje.postValue("No se detectaron cambios en los datos del perfil.");
-            tipoMensaje.postValue("warning");
+            emitirMensaje("warning", "No se detectaron cambios en los datos del perfil.");
             return;
         }
 
-        // Mostrar loading
         loading.postValue(true);
 
-        // Llamada a la API
         ApClient.getInmobiliariaService(getApplication())
                 .propietarioUpdate(body)
                 .enqueue(new Callback<Propietario>() {
@@ -126,19 +125,16 @@ public class PerfilViewModel extends AndroidViewModel {
                             SessionManager sm = new SessionManager(getApplication());
                             sm.updateProfileData(actualizado);
 
-                            mensaje.postValue("Perfil actualizado correctamente.");
-                            tipoMensaje.postValue("success");
+                            emitirMensaje("success", "Perfil actualizado correctamente.");
                         } else {
-                            mensaje.postValue("No se pudo actualizar el perfil.");
-                            tipoMensaje.postValue("error");
+                            emitirMensaje("error", "No se pudo actualizar el perfil.");
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Propietario> call, Throwable t) {
                         loading.postValue(false);
-                        mensaje.postValue("Error de conexión: " + t.getMessage());
-                        tipoMensaje.postValue("error");
+                        emitirMensaje("error", "Error de conexión: " + t.getMessage());
                     }
                 });
     }

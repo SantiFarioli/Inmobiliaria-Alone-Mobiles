@@ -55,7 +55,7 @@ public class PerfilFragment extends Fragment {
         binding = FragmentPerfilBinding.inflate(inflater, container, false);
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
 
-        // Observadores
+        // === Observadores ===
         pvm.getPropietario().observe(getViewLifecycleOwner(), new Observer<Propietario>() {
             @Override
             public void onChanged(Propietario p) {
@@ -89,6 +89,7 @@ public class PerfilFragment extends Fragment {
             @Override
             public void onChanged(String msg) {
                 if (msg == null || msg.isEmpty()) return;
+
                 String tipo = pvm.getTipoMensaje().getValue();
                 if ("success".equals(tipo)) {
                     DialogUtils.showSuccess(requireContext(), "¡Listo!", msg);
@@ -100,10 +101,13 @@ public class PerfilFragment extends Fragment {
                 } else {
                     DialogUtils.showError(requireContext(), "Error", msg);
                 }
+
+                // Limpiamos los valores para evitar que se repitan al recrear el fragment
+                pvm.limpiarMensajes();
             }
         });
 
-        // Botones
+        // === Botones ===
         binding.btnCambiarFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
