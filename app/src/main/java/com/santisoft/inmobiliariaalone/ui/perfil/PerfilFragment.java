@@ -28,10 +28,10 @@ import com.santisoft.inmobiliariaalone.util.ImageUtils;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class PerfilFragment extends Fragment {
+
     private FragmentPerfilBinding binding;
     private PerfilViewModel pvm;
     private Uri fotoSeleccionada;
-    private SessionManager session;
     private SweetAlertDialog loadingDialog;
 
     private final ActivityResultLauncher<PickVisualMediaRequest> pickImage =
@@ -54,68 +54,56 @@ public class PerfilFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentPerfilBinding.inflate(inflater, container, false);
         pvm = new ViewModelProvider(this).get(PerfilViewModel.class);
-        session = new SessionManager(requireContext());
 
-        // Cache local
-        binding.tilNombre.getEditText().setText(session.getNombre());
-        binding.tilEmail.getEditText().setText(session.getEmail());
-        String avatar = session.getFotoPerfil();
-        if (avatar != null && !avatar.isEmpty()) {
-            Glide.with(this)
-                    .load(avatar)
-                    .placeholder(R.drawable.ic_person)
-                    .into(binding.ivFotoPerfil);
-        } else {
-            binding.ivFotoPerfil.setImageResource(R.drawable.ic_person);
-        }
-
-        // Observador: perfil cargado desde la API
+        // Observadores
         pvm.getPropietario().observe(getViewLifecycleOwner(), new Observer<Propietario>() {
             @Override
-            public void onChanged(Propietario propietario) {
-                if (propietario != null) {
-                    safeSet(binding.tilNombre, propietario.getNombre());
-                    safeSet(binding.tilApellido, propietario.getApellido());
-                    safeSet(binding.tilDni, propietario.getDni());
-                    safeSet(binding.tilTelefono, propietario.getTelefono());
-                    safeSet(binding.tilEmail, propietario.getEmail());
+            public void onChanged(Propietario p) {
+                if (p != null) {
+                    binding.tilNombre.getEditText().setText(p.getNombre());
+                    binding.tilApellido.getEditText().setText(p.getApellido());
+                    binding.tilDni.getEditText().setText(p.getDni());
+                    binding.tilTelefono.getEditText().setText(p.getTelefono());
+                    binding.tilEmail.getEditText().setText(p.getEmail());
 
                     Glide.with(PerfilFragment.this)
-                            .load(propietario.getFotoPerfil())
+                            .load(p.getFotoPerfil())
                             .placeholder(R.drawable.ic_person)
                             .into(binding.ivFotoPerfil);
                 }
             }
         });
 
-        // Observador: error
-        pvm.getError().observe(getViewLifecycleOwner(), new Observer<String>() {
+        pvm.getLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean isLoading) {
+                if (isLoading != null && isLoading) {
+                    loadingDialog = DialogUtils.showLoading(requireContext(), "Guardando cambios...");
+                } else {
+                    DialogUtils.hideLoading(loadingDialog);
+                }
+            }
+        });
+
+        pvm.getMensaje().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String msg) {
-                if (msg != null && !msg.isEmpty()) {
-                    DialogUtils.hideLoading(loadingDialog);
+                if (msg == null || msg.isEmpty()) return;
+                String tipo = pvm.getTipoMensaje().getValue();
+                if ("success".equals(tipo)) {
+                    DialogUtils.showSuccess(requireContext(), "¡Listo!", msg);
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).refrescarHeader();
+                    }
+                } else if ("warning".equals(tipo)) {
+                    DialogUtils.showWarning(requireContext(), "Atención", msg);
+                } else {
                     DialogUtils.showError(requireContext(), "Error", msg);
                 }
             }
         });
 
-        // Observador: éxito
-        pvm.getExito().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean ok) {
-                if (Boolean.TRUE.equals(ok)) {
-                    DialogUtils.hideLoading(loadingDialog);
-                    DialogUtils.showSuccess(requireContext(), "¡Listo!", "Perfil actualizado correctamente");
-
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).refrescarHeader();
-                    }
-                    pvm.resetExito();
-                }
-            }
-        });
-
-        // Cambiar foto
+        // Botones
         binding.btnCambiarFoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -125,83 +113,29 @@ public class PerfilFragment extends Fragment {
             }
         });
 
-        // Guardar cambios con validaciones y detección de cambios
         binding.btnActualizar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String nombre = getText(binding.tilNombre);
-                String apellido = getText(binding.tilApellido);
-                String dni = getText(binding.tilDni);
-                String telefono = getText(binding.tilTelefono);
-                String email = getText(binding.tilEmail);
-
-                // VALIDACIONES
-                if (nombre.isEmpty() || apellido.isEmpty() || email.isEmpty()) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "Los campos Nombre, Apellido y Email son obligatorios.");
-                    return;
-                }
-                if (!nombre.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "El nombre solo puede contener letras y espacios.");
-                    return;
-                }
-                if (!apellido.matches("^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$")) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "El apellido solo puede contener letras y espacios.");
-                    return;
-                }
-                if (!dni.isEmpty() && !dni.matches("^\\d{7,9}$")) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "El DNI debe tener entre 7 y 9 dígitos numéricos.");
-                    return;
-                }
-                if (!telefono.isEmpty() && !telefono.matches("^[0-9+() -]{6,}$")) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "Ingrese un número de teléfono válido.");
-                    return;
-                }
-                if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "Ingrese un correo electrónico válido.");
-                    return;
-                }
-
-                // DETECCIÓN DE CAMBIOS
-                boolean sinCambios =
-                        nombre.equals(session.getNombre()) &&
-                                apellido.equals(session.getApellido()) &&
-                                dni.equals(session.getDni()) &&
-                                telefono.equals(session.getTelefono()) &&
-                                email.equals(session.getEmail()) &&
-                                (fotoSeleccionada == null ||
-                                        (session.getFotoPerfil() != null &&
-                                                fotoSeleccionada.toString().equals(session.getFotoPerfil())));
-
-                if (sinCambios) {
-                    DialogUtils.showWarning(requireContext(), "Atención", "No se detectaron cambios para guardar.");
-                    return;
-                }
-
-                // Si hay cambios, crear el body
                 Propietario body = new Propietario();
-                body.setNombre(nombre);
-                body.setApellido(apellido);
-                body.setDni(dni);
-                body.setTelefono(telefono);
-                body.setEmail(email);
+                body.setNombre(binding.tilNombre.getEditText().getText().toString().trim());
+                body.setApellido(binding.tilApellido.getEditText().getText().toString().trim());
+                body.setDni(binding.tilDni.getEditText().getText().toString().trim());
+                body.setTelefono(binding.tilTelefono.getEditText().getText().toString().trim());
+                body.setEmail(binding.tilEmail.getEditText().getText().toString().trim());
 
                 if (fotoSeleccionada != null) {
                     String localPath = ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionada);
-                    if (localPath != null) {
-                        body.setFotoPerfil(localPath);
-                    } else {
-                        body.setFotoPerfil(fotoSeleccionada.toString());
-                    }
-                } else if (session.getFotoPerfil() != null) {
-                    body.setFotoPerfil(session.getFotoPerfil());
+                    if (localPath != null) body.setFotoPerfil(localPath);
+                    else body.setFotoPerfil(fotoSeleccionada.toString());
+                } else {
+                    SessionManager sm = new SessionManager(requireContext());
+                    body.setFotoPerfil(sm.getFotoPerfil());
                 }
 
-                loadingDialog = DialogUtils.showLoading(requireContext(), "Guardando cambios...");
-                pvm.actualizar(body);
+                pvm.actualizarPerfil(body);
             }
         });
 
-        // Botón de cambio de contraseña
         binding.btnCambiarPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -211,20 +145,6 @@ public class PerfilFragment extends Fragment {
         });
 
         return binding.getRoot();
-    }
-
-    // Utilidades auxiliares
-    private void safeSet(com.google.android.material.textfield.TextInputLayout til, String v) {
-        if (til != null && til.getEditText() != null) {
-            til.getEditText().setText(v == null ? "" : v);
-        }
-    }
-
-    private String getText(com.google.android.material.textfield.TextInputLayout til) {
-        if (til != null && til.getEditText() != null) {
-            return til.getEditText().getText().toString().trim();
-        }
-        return "";
     }
 
     @Override

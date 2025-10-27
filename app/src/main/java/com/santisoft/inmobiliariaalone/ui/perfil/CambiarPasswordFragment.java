@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.santisoft.inmobiliariaalone.databinding.FragmentCambiarPasswordBinding;
 import com.santisoft.inmobiliariaalone.util.DialogUtils;
@@ -17,6 +16,7 @@ import com.santisoft.inmobiliariaalone.util.DialogUtils;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class CambiarPasswordFragment extends Fragment {
+
     private FragmentCambiarPasswordBinding binding;
     private CambiarPasswordViewModel vm;
     private SweetAlertDialog loadingDialog;
@@ -26,29 +26,28 @@ public class CambiarPasswordFragment extends Fragment {
         binding = FragmentCambiarPasswordBinding.inflate(inflater, container, false);
         vm = new ViewModelProvider(this).get(CambiarPasswordViewModel.class);
 
-        // Guardar
-        binding.btnGuardar.setOnClickListener(new View.OnClickListener() {
+        // Observadores del ViewModel
+        vm.getLoading().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
             @Override
-            public void onClick(View v) {
-                String actual = binding.etActual.getText().toString().trim();
-                String nueva = binding.etNueva.getText().toString().trim();
-                String confirmar = binding.etConfirmar.getText().toString().trim();
-
-                loadingDialog = DialogUtils.showLoading(requireContext(), "Actualizando contraseña...");
-                vm.cambiarPassword(actual, nueva, confirmar);
+            public void onChanged(Boolean isLoading) {
+                if (isLoading != null && isLoading) {
+                    loadingDialog = DialogUtils.showLoading(requireContext(), "Procesando...");
+                } else {
+                    DialogUtils.hideLoading(loadingDialog);
+                }
             }
         });
 
-        // Observador de mensajes
         vm.getMensaje().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(String msg) {
-                DialogUtils.hideLoading(loadingDialog);
-                CambiarPasswordViewModel.TipoMensaje tipo = vm.getTipoMensaje().getValue();
+                if (msg == null || msg.isEmpty()) return;
 
-                if (tipo == CambiarPasswordViewModel.TipoMensaje.SUCCESS) {
+                String tipo = vm.getTipoMensaje().getValue();
+                if ("success".equals(tipo)) {
                     DialogUtils.showSuccess(requireContext(), "¡Listo!", msg);
-                } else if (tipo == CambiarPasswordViewModel.TipoMensaje.WARNING) {
+                    limpiarCampos();
+                } else if ("warning".equals(tipo)) {
                     DialogUtils.showWarning(requireContext(), "Atención", msg);
                 } else {
                     DialogUtils.showError(requireContext(), "Error", msg);
@@ -56,17 +55,25 @@ public class CambiarPasswordFragment extends Fragment {
             }
         });
 
-        // Observador de éxito
-        vm.getExito().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
+        // Botón "Guardar cambios"
+        binding.btnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChanged(Boolean ok) {
-                if (Boolean.TRUE.equals(ok)) {
-                    NavHostFragment.findNavController(CambiarPasswordFragment.this).popBackStack();
-                }
+            public void onClick(View v) {
+                String actual = binding.tilActual.getEditText().getText().toString().trim();
+                String nueva = binding.tilNueva.getEditText().getText().toString().trim();
+                String confirmar = binding.tilConfirmar.getEditText().getText().toString().trim();
+
+                vm.cambiarPassword(actual, nueva, confirmar);
             }
         });
 
         return binding.getRoot();
+    }
+
+    private void limpiarCampos() {
+        binding.tilActual.getEditText().setText("");
+        binding.tilNueva.getEditText().setText("");
+        binding.tilConfirmar.getEditText().setText("");
     }
 
     @Override
