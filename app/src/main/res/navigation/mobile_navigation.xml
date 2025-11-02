@@ -93,7 +93,7 @@
         android:label="Contrato"
         tools:layout="@layout/fragment_detalle_contrato">
 
-        <!-- 👇 agregar -->
+        <!-- agregar -->
         <argument
             android:name="contratoJson"
             app:argType="string"
@@ -120,7 +120,7 @@
     <fragment
         android:id="@+id/nav_agregarInmuebleFragment"
         android:name="com.santisoft.inmobiliariaalone.ui.inmuebles.AgregarInmuebleFragment"
-        android:label="fragment_agregar_inmueble"
+        android:label="Crera Inmueble"
         tools:layout="@layout/fragment_agregar_inmueble" />
 
     <fragment

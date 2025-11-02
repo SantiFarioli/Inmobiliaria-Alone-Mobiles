@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.List;
 
 import okhttp3.Interceptor;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -30,8 +32,10 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 
 public class ApClient {
@@ -69,13 +73,17 @@ public class ApClient {
 
                         builder.header("Accept", "application/json");
                         if (token != null && !token.isEmpty()) {
-                            if (!token.startsWith("Bearer ")) {
-                                token = "Bearer " + token;
+                            // Evitamos doble prefijo Bearer
+                            if (token.startsWith("Bearer ")) {
+                                builder.header("Authorization", token);
+                            } else {
+                                builder.header("Authorization", "Bearer " + token);
                             }
-                            builder.header("Authorization", token);
+                            android.util.Log.d("TOKEN_DEBUG", "Authorization header => [" + token + "]");
                         }
 
                         return chain.proceed(builder.build());
+
                     }
                 })
                 .build();
@@ -130,11 +138,15 @@ public class ApClient {
         @GET("Inmuebles/{id}")
         Call<Inmueble> inmuebleGet(@Path("id") int id);
 
-        @POST("Inmuebles")
-        Call<Inmueble> inmuebleCreate(@Body Inmueble body);
-
         @PUT("Inmuebles/{id}")
         Call<ResponseBody> inmuebleUpdate(@Path("id") int id, @Body Inmueble body);
+
+        @Multipart
+        @POST("Inmuebles/cargar")
+        Call<Inmueble> cargarInmueble(
+                @Part MultipartBody.Part imagen,
+                @Part("inmueble") RequestBody inmueble
+        );
 
         // ---------- Contratos ----------
         @GET("Contratos")

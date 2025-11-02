@@ -1,6 +1,7 @@
 package com.santisoft.inmobiliariaalone.ui.inmuebles;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,6 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
+import com.santisoft.inmobiliariaalone.util.DialogEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,90 +24,114 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class InmueblesViewModel extends AndroidViewModel {
-    private final MutableLiveData<List<Inmueble>> lista = new MutableLiveData<>(new ArrayList<>());
-    private final MutableLiveData<String> error = new MutableLiveData<>();
 
-    public InmueblesViewModel(@NonNull Application app) { super(app); }
+    private final MutableLiveData<List<Inmueble>> lista = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<DialogEvent> dialogEvent = new MutableLiveData<>();
+
+    public InmueblesViewModel(@NonNull Application app) {
+        super(app);
+    }
 
     public LiveData<List<Inmueble>> getLista() { return lista; }
-    public LiveData<String> getError() { return error; }
+    public LiveData<DialogEvent> getDialogEvent() { return dialogEvent; }
 
+    // Cargar inmuebles
     public void cargar() {
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
 
         api.inmueblesGetAll().enqueue(new Callback<List<Inmueble>>() {
             @Override
-            public void onResponse(Call<List<Inmueble>> call, Response<List<Inmueble>> rInm) {
-                if (!rInm.isSuccessful() || rInm.body() == null) {
-                    error.postValue("No se pudieron cargar los inmuebles");
+            public void onResponse(Call<List<Inmueble>> call, Response<List<Inmueble>> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    dialogEvent.postValue(new DialogEvent(
+                            DialogEvent.Type.ERROR,
+                            "Error",
+                            "No se pudieron cargar los inmuebles."
+                    ));
                     return;
                 }
-
-                List<Inmueble> inmuebles = rInm.body();
-
-                api.contratosVigentesMios().enqueue(new Callback<List<Contrato>>() {
-                    @Override
-                    public void onResponse(Call<List<Contrato>> call2, Response<List<Contrato>> rCtr) {
-                        if (!rCtr.isSuccessful() || rCtr.body() == null) {
-                            lista.postValue(inmuebles);
-                            return;
-                        }
-
-                        List<Contrato> vigentes = rCtr.body();
-                        Map<Integer, List<Contrato>> byInmueble = new HashMap<>();
-
-                        for (Contrato c : vigentes) {
-                            if (c == null) continue;
-                            int idInm = c.getIdInmueble();
-                            if (idInm == 0 && c.getInmueble() != null) {
-                                idInm = c.getInmueble().getIdInmueble();
-                            }
-                            if (idInm == 0) continue;
-                            byInmueble.computeIfAbsent(idInm, k -> new ArrayList<>()).add(c);
-                        }
-
-                        for (Inmueble i : inmuebles) {
-                            if (i == null) continue;
-                            List<Contrato> cs = byInmueble.get(i.getIdInmueble());
-                            if (cs != null && !cs.isEmpty()) {
-                                i.setContratos(cs);
-                                i.setEstado("no disponible");
-                            } else {
-                                i.setContratos(null);
-                            }
-                        }
-
-                        lista.postValue(inmuebles);
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<Contrato>> call2, Throwable t) {
-                        lista.postValue(inmuebles);
-                    }
-                });
+                List<Inmueble> inmuebles = response.body();
+                cargarContratosYActualizarEstados(api, inmuebles);
             }
 
             @Override
             public void onFailure(Call<List<Inmueble>> call, Throwable t) {
-                error.postValue(t.getMessage());
+                dialogEvent.postValue(new DialogEvent(
+                        DialogEvent.Type.ERROR,
+                        "Error de conexión",
+                        t.getMessage()
+                ));
             }
         });
     }
 
-    public void toggleDisponibilidad(Inmueble item, boolean disponible) {
+    // Asocia contratos y actualiza estados
+    private void cargarContratosYActualizarEstados(ApClient.InmobliariaService api, List<Inmueble> inmuebles) {
+        api.contratosVigentesMios().enqueue(new Callback<List<Contrato>>() {
+            @Override
+            public void onResponse(Call<List<Contrato>> call, Response<List<Contrato>> response) {
+                if (!response.isSuccessful() || response.body() == null) {
+                    lista.postValue(inmuebles);
+                    return;
+                }
+
+                Map<Integer, List<Contrato>> contratosPorInmueble = new HashMap<>();
+                for (Contrato c : response.body()) {
+                    if (c == null) continue;
+                    int idInm = c.getIdInmueble();
+                    if (idInm == 0 && c.getInmueble() != null) {
+                        idInm = c.getInmueble().getIdInmueble();
+                    }
+                    if (idInm != 0) {
+                        contratosPorInmueble
+                                .computeIfAbsent(idInm, k -> new ArrayList<>())
+                                .add(c);
+                    }
+                }
+
+                for (Inmueble i : inmuebles) {
+                    List<Contrato> contratos = contratosPorInmueble.get(i.getIdInmueble());
+                    if (contratos != null && !contratos.isEmpty()) {
+                        i.setContratos(contratos);
+                        i.setEstado("no disponible");
+                    }
+                }
+
+                lista.postValue(inmuebles);
+            }
+
+            @Override
+            public void onFailure(Call<List<Contrato>> call, Throwable t) {
+                lista.postValue(inmuebles);
+            }
+        });
+    }
+
+    // Cambiar disponibilidad
+    public void cambiarDisponibilidad(Inmueble item, boolean disponible) {
         if (item.getContratos() != null && !item.getContratos().isEmpty()) {
-            error.postValue("No se puede cambiar disponibilidad: el inmueble tiene un contrato vigente.");
-            cargar();
+            dialogEvent.postValue(new DialogEvent(
+                    DialogEvent.Type.WARNING,
+                    "No permitido",
+                    "No se puede cambiar disponibilidad: el inmueble tiene contrato vigente."
+            ));
+            refrescarLista();
             return;
         }
 
-        if (!disponible) {
-            error.postValue("Propiedad no disponible");
+        if ((disponible && "disponible".equalsIgnoreCase(item.getEstado())) ||
+                (!disponible && "no disponible".equalsIgnoreCase(item.getEstado()))) {
+            dialogEvent.postValue(new DialogEvent(
+                    DialogEvent.Type.WARNING,
+                    "Atención",
+                    "El inmueble ya está en ese estado."
+            ));
+            return;
         }
 
-        String nuevo = disponible ? "disponible" : "no disponible";
+        String nuevoEstado = disponible ? "disponible" : "no disponible";
         String previo = item.getEstado();
-        item.setEstado(nuevo);
+        item.setEstado(nuevoEstado);
 
         ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
         api.inmuebleUpdate(item.getIdInmueble(), item).enqueue(new Callback<ResponseBody>() {
@@ -113,19 +139,43 @@ public class InmueblesViewModel extends AndroidViewModel {
             public void onResponse(Call<ResponseBody> c, Response<ResponseBody> r) {
                 if (!r.isSuccessful()) {
                     item.setEstado(previo);
-                    error.postValue("No se pudo actualizar el estado");
-                    lista.postValue(new ArrayList<>(lista.getValue()));
+                    dialogEvent.postValue(new DialogEvent(
+                            DialogEvent.Type.ERROR,
+                            "Error",
+                            "No se pudo actualizar el estado."
+                    ));
+                } else {
+                    dialogEvent.postValue(new DialogEvent(
+                            DialogEvent.Type.SUCCESS,
+                            "Éxito",
+                            "Estado actualizado correctamente."
+                    ));
                 }
+                refrescarLista();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> c, Throwable t) {
                 item.setEstado(previo);
-                error.postValue("Error de conexión: " + t.getMessage());
-                lista.postValue(new ArrayList<>(lista.getValue()));
+                dialogEvent.postValue(new DialogEvent(
+                        DialogEvent.Type.ERROR,
+                        "Error de conexión",
+                        t.getMessage()
+                ));
+                refrescarLista();
             }
         });
+    }
 
-        lista.postValue(new ArrayList<>(lista.getValue()));
+    private void refrescarLista() {
+        if (lista.getValue() != null) {
+            lista.postValue(new ArrayList<>(lista.getValue()));
+        }
+    }
+
+    // solo se agrega limpieza de mensajes
+    public void limpiarMensajes() {
+        dialogEvent.postValue(null);
+        Log.d("InmueblesVM", "🧹 Mensajes limpiados para evitar repetición");
     }
 }

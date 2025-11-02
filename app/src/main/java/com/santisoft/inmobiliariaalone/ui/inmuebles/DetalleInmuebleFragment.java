@@ -24,6 +24,7 @@ public class DetalleInmuebleFragment extends Fragment {
 
     private FragmentDetalleInmuebleBinding binding;
     private int idInmueble;
+    private static final String BASE_URL = "http://192.168.0.100:5157"; // ⚡ Ajusta si tu IP cambia
 
     @Nullable
     @Override
@@ -40,7 +41,8 @@ public class DetalleInmuebleFragment extends Fragment {
             Inmueble inmueble = (Inmueble) getArguments().getSerializable("inmueble");
             if (inmueble != null) {
                 idInmueble = inmueble.getIdInmueble();
-                cargarDetalle(idInmueble);
+                mostrarInmueble(inmueble); // mostrar de inmediato
+                cargarDetalle(idInmueble); // luego actualizar por si cambió
             }
         }
     }
@@ -56,27 +58,36 @@ public class DetalleInmuebleFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<Inmueble> call, Throwable t) { }
+            public void onFailure(Call<Inmueble> call, Throwable t) {
+                System.out.println("Error al cargar detalle: " + t.getMessage());
+            }
         });
     }
 
     private void mostrarInmueble(Inmueble inmueble) {
         binding.tvTitulo.setText("Información del inmueble");
-        binding.tvDireccion.setText(inmueble.getDireccion());
+
+        binding.tvDireccion.setText(inmueble.getDireccion() != null ? inmueble.getDireccion() : "Sin dirección");
         binding.tvPrecio.setText("$ " + inmueble.getPrecio());
-        binding.chUso.setText(inmueble.getUso());
-        binding.chTipo.setText(inmueble.getTipo());
+        binding.chUso.setText(inmueble.getUso() != null ? inmueble.getUso() : "-");
+        binding.chTipo.setText(inmueble.getTipo() != null ? inmueble.getTipo() : "-");
         binding.chAmbientes.setText(String.valueOf(inmueble.getAmbientes()));
 
         boolean disponible = "disponible".equalsIgnoreCase(inmueble.getEstado());
-        binding.tvEstado.setText(disponible ? "disponible" : "no disponible");
+        binding.tvEstado.setText(disponible ? "Disponible" : "No disponible");
+
         int color = ContextCompat.getColor(requireContext(),
                 disponible ? R.color.estado_ok : R.color.estado_error);
         binding.tvEstado.setTextColor(color);
 
-        String foto = inmueble.getFoto();
+        // Mostrar imagen con URL completa
+        String fotoUrl = inmueble.getFoto();
+        if (fotoUrl != null && !fotoUrl.isEmpty() && !fotoUrl.startsWith("http")) {
+            fotoUrl = BASE_URL + fotoUrl;
+        }
+
         Glide.with(this)
-                .load(foto == null || foto.isEmpty() ? null : foto)
+                .load(fotoUrl)
                 .placeholder(R.drawable.casa1)
                 .error(R.drawable.casa2)
                 .into(binding.ivFoto);

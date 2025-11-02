@@ -2,6 +2,7 @@ package com.santisoft.inmobiliariaalone.ui.inmuebles;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -39,48 +40,62 @@ public class InmuebleAdapter extends RecyclerView.Adapter<InmuebleAdapter.VH> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int pos) {
+    public void onBindViewHolder(@NonNull VH holder, int pos) {
         Inmueble i = data.get(pos);
 
-        h.b.tvDireccion.setText(i.getDireccion());
-        h.b.tvPrecio.setText("$ " + i.getPrecio());
+        holder.b.tvDireccion.setText(i.getDireccion());
+        holder.b.tvPrecio.setText("$ " + i.getPrecio());
 
         boolean tieneVigente = i.getContratos() != null && !i.getContratos().isEmpty();
         boolean disponible = "disponible".equalsIgnoreCase(i.getEstado());
         boolean noDisponible = !disponible || tieneVigente;
 
-        // 🎨 Color unificado
         int colorRes = noDisponible ? R.color.card_unavail : R.color.card_avail;
-        h.b.getRoot().setCardBackgroundColor(
-                ContextCompat.getColor(h.b.getRoot().getContext(), colorRes)
+        holder.b.getRoot().setCardBackgroundColor(
+                ContextCompat.getColor(holder.b.getRoot().getContext(), colorRes)
         );
-        h.b.getRoot().setCardElevation(6f);
-        h.b.getRoot().setRadius(24f);
 
-        h.b.swDisponible.setOnCheckedChangeListener(null);
+        holder.b.swDisponible.setOnCheckedChangeListener(null);
+
         if (tieneVigente) {
-            h.b.swDisponible.setChecked(false);
-            h.b.swDisponible.setEnabled(false);
-            h.b.swDisponible.setAlpha(0.5f);
+            holder.b.swDisponible.setChecked(false);
+            holder.b.swDisponible.setEnabled(false);
+            holder.b.swDisponible.setAlpha(0.5f);
         } else {
-            h.b.swDisponible.setEnabled(true);
-            h.b.swDisponible.setAlpha(1f);
-            h.b.swDisponible.setChecked(disponible);
-            h.b.swDisponible.setOnCheckedChangeListener((btn, checked) -> onToggle.onToggle(i, checked));
+            holder.b.swDisponible.setEnabled(true);
+            holder.b.swDisponible.setAlpha(1f);
+            holder.b.swDisponible.setChecked(disponible);
+
+            holder.b.swDisponible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    onToggle.onToggle(i, isChecked);
+                }
+            });
         }
 
-        Glide.with(h.b.ivFoto.getContext())
-                .load(i.getFoto())
+        // Imagen corregida: completa URL si falta esquema
+        String url = i.getFoto();
+        if (url != null && !url.startsWith("http")) {
+            url = "http://192.168.0.100:5157" + url;
+        }
+
+        Glide.with(holder.b.ivFoto.getContext())
+                .load(url)
                 .placeholder(R.drawable.casa1)
                 .error(R.drawable.casa1)
-                .into(h.b.ivFoto);
+                .centerCrop()
+                .into(holder.b.ivFoto);
 
-        h.b.btnVer.setText("Ver detalle");
-        h.b.btnVer.setOnClickListener(v -> onItemClick.onClick(i));
+
+        holder.b.btnVer.setText("Ver detalle");
+        holder.b.btnVer.setOnClickListener(v -> onItemClick.onClick(i));
     }
 
     @Override
-    public int getItemCount() { return data.size(); }
+    public int getItemCount() {
+        return data.size();
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         final ItemInmuebleBinding b;

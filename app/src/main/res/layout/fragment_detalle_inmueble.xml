@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FAFAFA">
+    android:background="@drawable/bg_app_gradient">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- 🏡 Tarjeta principal -->
+        <!-- Tarjeta principal -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDetalle"
             android:layout_width="match_parent"
@@ -21,6 +21,7 @@
             app:cardUseCompatPadding="true"
             app:strokeColor="@color/teal_200"
             app:strokeWidth="1dp"
+            android:clipToOutline="true"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -29,7 +30,7 @@
                 android:orientation="vertical"
                 android:padding="20dp">
 
-                <!-- Título centrado -->
+                <!-- Título -->
                 <TextView
                     android:id="@+id/tvTitulo"
                     android:layout_width="match_parent"
@@ -45,12 +46,13 @@
                 <ImageView
                     android:id="@+id/ivFoto"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="200dp"
                     android:scaleType="centerCrop"
-                    android:contentDescription="Foto del inmueble"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="Imagen del inmueble"
+                    android:layout_marginBottom="16dp"
                     android:background="@drawable/card_bg_gradient"
-                    android:clipToOutline="true"
-                    android:layout_marginBottom="16dp" />
+                    android:clipToOutline="true" />
 
                 <!-- Dirección -->
                 <TextView
@@ -66,6 +68,7 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="16sp"
+                    android:textColor="@color/black"
                     android:layout_marginBottom="8dp" />
 
                 <!-- Precio -->
@@ -82,6 +85,7 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:textSize="16sp"
+                    android:textColor="@color/black"
                     android:layout_marginBottom="8dp" />
 
                 <!-- Estado -->
@@ -99,16 +103,17 @@
                     android:text="disponible"
                     android:textStyle="bold"
                     android:textSize="15sp"
+                    android:textColor="@color/white"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="5dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="10dp"
                     android:background="@drawable/bg_estado_label" />
 
-                <!-- Chips (versión segura sin estilos antiguos) -->
+                <!-- Chips informativos -->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/chipGroup"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_gravity="center"

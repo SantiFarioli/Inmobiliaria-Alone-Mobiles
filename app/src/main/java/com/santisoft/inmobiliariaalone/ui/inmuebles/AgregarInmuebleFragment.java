@@ -1,102 +1,127 @@
 package com.santisoft.inmobiliariaalone.ui.inmuebles;
 
+import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.PickVisualMediaRequest;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.lifecycle.ViewModelProvider;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.Navigation;
-import com.bumptech.glide.Glide;
+import androidx.lifecycle.ViewModelProvider;
 import com.santisoft.inmobiliariaalone.databinding.FragmentAgregarInmuebleBinding;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
+import com.santisoft.inmobiliariaalone.util.DialogUtils;
+import com.santisoft.inmobiliariaalone.util.DialogEvent;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 public class AgregarInmuebleFragment extends Fragment {
-    private FragmentAgregarInmuebleBinding b;
+
+    private FragmentAgregarInmuebleBinding binding;
     private AgregarInmuebleViewModel vm;
+    private ActivityResultLauncher<Intent> launcherGaleria;
+    private SweetAlertDialog loadingDialog;
 
-    private Uri fotoSeleccionadaUri = null;
-
-    // Photo Picker (AndroidX) -> en Android 13+ no requiere permisos
-    private final ActivityResultLauncher<PickVisualMediaRequest> pickImage =
-            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(),
-                    uri -> {
-                        if (uri != null) {
-                            fotoSeleccionadaUri = uri;
-                            Glide.with(this).load(uri).into(b.ivPreview);
-                        }
-                    });
-
-    @Override public View onCreateView(@NonNull LayoutInflater inf, ViewGroup c, Bundle s) {
-        b = FragmentAgregarInmuebleBinding.inflate(inf, c, false);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        binding = FragmentAgregarInmuebleBinding.inflate(inflater, container, false);
         vm = new ViewModelProvider(this).get(AgregarInmuebleViewModel.class);
-
-        b.btnElegirFoto.setOnClickListener(v ->
-                pickImage.launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build())
-        );
-
-        b.btnConfirmarCrearInmueble.setOnClickListener(v -> {
-            String dir   = safeTrim(b.etDireccion.getText());
-            String uso   = safeTrim(b.etUso.getText());
-            String tipo  = safeTrim(b.etTipo.getText());
-            String est   = safeTrim(b.etEstado.getText());
-            String url   = safeTrim(b.etImagen.getText());
-            int amb      = safeInt(safeTrim(b.etAmbientes.getText()));
-            double precio= safeDouble(safeTrim(b.etPrecio.getText()));
-
-            if (dir.isEmpty() || uso.isEmpty() || tipo.isEmpty() || amb<=0 || precio<=0) {
-                toast("Completá todos los datos obligatorios"); return;
-            }
-
-            Inmueble body = new Inmueble();
-            body.setDireccion(dir);
-            body.setUso(uso);
-            body.setTipo(tipo);
-            body.setAmbientes(amb);
-            body.setPrecio(precio);
-            body.setEstado(est.isEmpty() ? "disponible" : est.toLowerCase());
-
-            if (fotoSeleccionadaUri != null) {
-                // Guardar una copia segura en memoria interna
-                String localPath = com.santisoft.inmobiliariaalone.util.ImageUtils.saveToInternalStorage(requireContext(), fotoSeleccionadaUri);
-                if (localPath != null) {
-                    body.setFoto(localPath);
-                } else {
-                    body.setFoto(fotoSeleccionadaUri.toString()); // fallback
-                }
-            } else if (!url.isEmpty()) {
-                body.setFoto(url);
-            }
-
-
-            vm.crear(requireContext(), body);
-        });
-
-        vm.getExito().observe(getViewLifecycleOwner(), ok -> {
-            if (Boolean.TRUE.equals(ok)) {
-                toast("Inmueble creado");
-                Navigation.findNavController(b.getRoot()).navigateUp();
-            }
-        });
-        vm.getError().observe(getViewLifecycleOwner(), e -> {
-            if (e!=null && !e.isEmpty()) toast(e);
-        });
-        return b.getRoot();
+        requireActivity().setTitle("Crear Inmueble"); // ✅ título correcto
+        configurarSpinners();
+        configurarLauncher();
+        observarViewModel();
+        return binding.getRoot();
     }
 
-    private String safeTrim(CharSequence s){ return s==null? "": s.toString().trim(); }
-    private int safeInt(String s){ try { return Integer.parseInt(s); } catch(Exception e){ return -1; } }
-    private double safeDouble(String s){ try { return Double.parseDouble(s); } catch(Exception e){ return -1; } }
-    private void toast(String m){ Toast.makeText(getContext(), m, Toast.LENGTH_SHORT).show(); }
+    private void observarViewModel() {
+        vm.getUriFoto().observe(getViewLifecycleOwner(), uri -> binding.ivPreview.setImageURI(uri));
 
-    @Override public void onDestroyView(){ super.onDestroyView(); b=null; }
+        vm.getDialogEvent().observe(getViewLifecycleOwner(), event -> {
+            if (event == null) return;
+            switch (event.getType()) {
+                case LOADING:
+                    loadingDialog = DialogUtils.showLoading(requireContext(), event.getTitle());
+                    break;
+                case HIDE_LOADING:
+                    if (loadingDialog != null) loadingDialog.dismissWithAnimation();
+                    break;
+                case SUCCESS:
+                    DialogUtils.showSuccess(requireContext(), event.getTitle(), event.getMessage());
+                    if (loadingDialog != null) loadingDialog.dismissWithAnimation();
+                    limpiarCampos();
+                    requireActivity().getSupportFragmentManager().popBackStack();
+                    break;
+                case ERROR:
+                    DialogUtils.showError(requireContext(), event.getTitle(), event.getMessage());
+                    break;
+                case WARNING:
+                    DialogUtils.showWarning(requireContext(), event.getTitle(), event.getMessage());
+                    break;
+                case CONFIRM:
+                    new SweetAlertDialog(requireContext(), SweetAlertDialog.WARNING_TYPE)
+                            .setTitleText(event.getTitle())
+                            .setContentText(event.getMessage())
+                            .setConfirmText("Sí, publicar")
+                            .setCancelText("Cancelar")
+                            .setConfirmClickListener(sDialog -> {
+                                sDialog.dismissWithAnimation();
+                                Inmueble i = new Inmueble(
+                                        0,
+                                        binding.etDireccion.getText().toString(),
+                                        binding.spUso.getSelectedItem().toString(),
+                                        binding.spTipo.getSelectedItem().toString(),
+                                        Integer.parseInt(binding.etAmbientes.getText().toString()),
+                                        Double.parseDouble(binding.etPrecio.getText().toString()),
+                                        binding.cbDisponible.isChecked() ? "Disponible" : "No disponible",
+                                        0, null, null, ""
+                                );
+                                vm.enviarInmueble(i);
+                            })
+                            .setCancelClickListener(SweetAlertDialog::dismissWithAnimation)
+                            .show();
+                    break;
+            }
+        });
+    }
+
+    private void configurarSpinners() {
+        ArrayAdapter<String> adapterUso = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, new String[]{"Residencial", "Comercial"});
+        adapterUso.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spUso.setAdapter(adapterUso);
+
+        ArrayAdapter<String> adapterTipo = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, new String[]{"Casa", "Departamento", "Local"});
+        adapterTipo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spTipo.setAdapter(adapterTipo);
+    }
+
+    private void configurarLauncher() {
+        launcherGaleria = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                (ActivityResult result) -> vm.recibirFoto(result));
+        binding.btnElegirFoto.setOnClickListener(v -> {
+            Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            launcherGaleria.launch(i);
+        });
+        binding.btnGuardarInmueble.setOnClickListener(v -> vm.guardarInmueble(
+                binding.etDireccion.getText().toString(),
+                binding.etPrecio.getText().toString(),
+                binding.spUso.getSelectedItem().toString(),
+                binding.spTipo.getSelectedItem().toString(),
+                binding.etAmbientes.getText().toString(),
+                binding.cbDisponible.isChecked()
+        ));
+    }
+
+    private void limpiarCampos() {
+        binding.etDireccion.setText("");
+        binding.etPrecio.setText("");
+        binding.etAmbientes.setText("");
+        binding.ivPreview.setImageDrawable(null);
+        binding.cbDisponible.setChecked(true);
+    }
 }

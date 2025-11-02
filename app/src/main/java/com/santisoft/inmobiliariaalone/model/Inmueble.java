@@ -16,7 +16,6 @@ public class Inmueble implements Serializable {
     private Propietario propietario;
     private List<Contrato> contratos;
 
-    // *** coincide con el backend (JSON: "foto") ***
     private String foto;
 
     public Inmueble() { }
@@ -78,7 +77,6 @@ public class Inmueble implements Serializable {
     public String getFoto() { return foto; }
     public void setFoto(String foto) { this.foto = foto; }
 
-    // --- Compatibilidad con tu código existente ---
     public String getImagen() { return foto; }
     public void setImagen(String imagen) { this.foto = imagen; }
 }
