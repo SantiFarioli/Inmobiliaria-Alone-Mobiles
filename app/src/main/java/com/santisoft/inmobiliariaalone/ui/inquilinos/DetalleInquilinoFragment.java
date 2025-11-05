@@ -1,37 +1,54 @@
 package com.santisoft.inmobiliariaalone.ui.inquilinos;
 
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import com.google.gson.Gson;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.santisoft.inmobiliariaalone.databinding.FragmentDetalleInquilinoBinding;
 import com.santisoft.inmobiliariaalone.model.Inquilino;
 
 public class DetalleInquilinoFragment extends Fragment {
 
-    private FragmentDetalleInquilinoBinding b;
-    private final Gson gson = new Gson();
+    private FragmentDetalleInquilinoBinding binding;
+    private DetalleInquilinoViewModel vm;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        b = FragmentDetalleInquilinoBinding.inflate(inflater, container, false);
+        binding = FragmentDetalleInquilinoBinding.inflate(inflater, container, false);
+        vm = new ViewModelProvider(this).get(DetalleInquilinoViewModel.class);
 
-        String json = getArguments()!=null ? getArguments().getString("inquilinoJson", "") : "";
-        Inquilino i = gson.fromJson(json, Inquilino.class);
+        // Observar el inquilino y actualizar UI
+        vm.getInquilino().observe(getViewLifecycleOwner(), this::mostrarInquilino);
 
-        if (i != null) {
-            b.tvCodigo.setText(String.valueOf(i.getIdInquilino()));
-            b.tvNombre.setText(i.getNombreCompleto());
-            b.tvDni.setText(i.getDni());
-            b.tvEmail.setText(i.getEmail());
-            b.tvTelefono.setText(i.getTelefono());
-            b.tvTrabajo.setText(i.getLugarTrabajo());
-            b.tvGarante.setText(i.getNombreGarante());
-            b.tvDniGarante.setText(i.getDniGarante());
+        // Cargar datos si vienen desde navegación
+        if (getArguments() != null) {
+            vm.setInquilinoDesdeJson(getArguments().getString("inquilinoJson"));
         }
-        return b.getRoot();
+
+        return binding.getRoot();
     }
 
-    @Override public void onDestroyView() { super.onDestroyView(); b = null; }
+    private void mostrarInquilino(Inquilino inq) {
+        if (inq == null) return;
+
+        binding.tvCodigo.setText(String.valueOf(inq.getIdInquilino()));
+        binding.tvNombre.setText(inq.getNombreCompleto());
+        binding.tvDni.setText(inq.getDni());
+        binding.tvEmail.setText(inq.getEmail());
+        binding.tvTelefono.setText(inq.getTelefono());
+        binding.tvTrabajo.setText(inq.getLugarTrabajo());
+        binding.tvGarante.setText(inq.getNombreGarante());
+        binding.tvDniGarante.setText(inq.getDniGarante());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 }

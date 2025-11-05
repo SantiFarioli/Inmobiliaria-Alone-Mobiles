@@ -1,4 +1,5 @@
 <resources>
+    <!-- === App === -->
     <string name="app_name">Inmobiliaria Alone</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -7,12 +8,39 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <!-- === Menú lateral === -->
     <string name="menu_inicio">Inicio</string>
     <string name="menu_perfil">Perfil</string>
     <string name="menu_inmuebles">Inmuebles</string>
     <string name="menu_inquilinos">Inquilinos</string>
     <string name="menu_contratos">Contratos</string>
     <string name="menu_logout">Logout</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
+    <!-- === Genéricos === -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ver_detalle">Ver detalle</string>
+    <string name="ver_mas">Ver más</string>
+
+    <!-- === Inquilinos (Listado) === -->
+    <string name="inquilinos_titulo">Mis Inquilinos</string>
+    <string name="subtitulo_inquilinos">Lista de inmuebles alquilados</string>
+    <string name="foto_inmueble">Foto del inmueble</string>
+    <string name="inquilino_nombre">Inquilino</string>
+    <string name="inquilino_telefono">Teléfono</string>
+    <string name="inquilino_direccion">Dirección del inmueble</string>
+    <string name="no_hay_inquilinos_activos">No hay inquilinos activos</string>
+    <string name="cargando_inquilinos">Cargando inquilinos...</string>
+    <string name="error_inquilinos">Error al obtener los inquilinos</string>
+    <string name="sin_datos_inquilino">Sin datos de inquilino</string>
+
+    <!-- === Detalle del Inquilino === -->
+    <string name="informacion_inquilino">Información del inquilino</string>
+    <string name="codigo">Código</string>
+    <string name="nombre">Nombre</string>
+    <string name="dni">DNI</string>
+    <string name="email">E-mail</string>
+    <string name="telefono">Teléfono</string>
+    <string name="lugar_trabajo">Lugar de trabajo</string>
+    <string name="garante">Garante</string>
+    <string name="dni_garante">DNI Garante</string>
 </resources>
