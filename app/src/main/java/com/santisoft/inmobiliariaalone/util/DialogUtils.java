@@ -4,11 +4,9 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
-/**
- * Clase helper centralizada para mostrar diálogos SweetAlert.
- * Evita duplicar lógica en fragments.
- */
+
 public class DialogUtils {
 
     // Éxito
@@ -37,6 +35,17 @@ public class DialogUtils {
                 .setConfirmText("Ok")
                 .show();
     }
+
+    // Confirmación
+    public static void showConfirm(Context ctx, String title, String message, Runnable onConfirm) {
+        new AlertDialog.Builder(ctx)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Sí", (dialog, which) -> onConfirm.run())
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
 
     // Cargando
     public static SweetAlertDialog showLoading(Context ctx, @Nullable String mensaje) {

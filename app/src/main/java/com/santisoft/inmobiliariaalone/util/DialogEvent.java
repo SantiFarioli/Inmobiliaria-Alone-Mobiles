@@ -9,6 +9,7 @@ public class DialogEvent {
         SUCCESS,
         ERROR,
         WARNING,
+        INFO,
         CONFIRM,
         LOADING,
         HIDE_LOADING
