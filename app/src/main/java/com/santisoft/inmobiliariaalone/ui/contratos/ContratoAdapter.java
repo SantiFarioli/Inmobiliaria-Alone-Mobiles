@@ -2,10 +2,12 @@ package com.santisoft.inmobiliariaalone.ui.contratos;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.gson.Gson;
+import com.bumptech.glide.Glide;
+import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.databinding.ItemContratoBinding;
 import com.santisoft.inmobiliariaalone.model.Contrato;
 import com.santisoft.inmobiliariaalone.model.Inmueble;
@@ -24,24 +26,28 @@ public class ContratoAdapter extends RecyclerView.Adapter<ContratoAdapter.VH> {
     private final SimpleDateFormat sdfIso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
     private final SimpleDateFormat sdfOut = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
-    public ContratoAdapter(OnItemClick cb){ this.onItemClick = cb; }
+    public ContratoAdapter(OnItemClick cb) { this.onItemClick = cb; }
 
-    public void submit(List<Contrato> list){
+    public void submit(List<Contrato> list) {
         data.clear();
-        if (list!=null) data.addAll(list);
+        if (list != null) data.addAll(list);
         notifyDataSetChanged();
     }
 
-    @NonNull @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int v) {
+    @NonNull
+    @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup p, int v) {
         return new VH(ItemContratoBinding.inflate(LayoutInflater.from(p.getContext()), p, false));
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h, int pos) {
+    @Override
+    public void onBindViewHolder(@NonNull VH h, int pos) {
         Contrato c = data.get(pos);
 
         Inmueble inm = c.getInmueble();
         Inquilino inq = c.getInquilino();
 
+        // === DATOS TEXTUALES ===
         String dir = inm != null ? nullToDash(inm.getDireccion()) : "Inmueble";
         String inqNom = inq != null ? nullToDash(inq.getNombreCompleto()) : "Inquilino";
 
@@ -50,29 +56,41 @@ public class ContratoAdapter extends RecyclerView.Adapter<ContratoAdapter.VH> {
         h.b.tvFechas.setText(formatAny(c.getFechaInicio()) + "  -  " + formatAny(c.getFechaFin()));
         h.b.tvMonto.setText("$ " + c.getMontoAlquiler());
 
+        // === NUEVO: IMAGEN DEL INMUEBLE ===
+        String fotoUrl = (inm != null) ? inm.getFoto() : null;
+        Glide.with(h.b.getRoot().getContext())
+                .load(fotoUrl)
+                .placeholder(R.drawable.casa1)
+                .error(R.drawable.casa1)
+                .centerCrop()
+                .into(h.b.ivFoto);
+
+        // === BOTÓN DETALLE ===
         h.b.btnVerDetalle.setOnClickListener(v -> onItemClick.onClick(c));
     }
 
-    @Override public int getItemCount(){ return data.size(); }
+    @Override
+    public int getItemCount() { return data.size(); }
 
     static class VH extends RecyclerView.ViewHolder {
         final ItemContratoBinding b;
-        VH(@NonNull ItemContratoBinding b){ super(b.getRoot()); this.b = b; }
+        VH(@NonNull ItemContratoBinding b) { super(b.getRoot()); this.b = b; }
     }
 
-    // helpers
-    private String nullToDash(String s){ return (s==null || s.isEmpty()) ? "-" : s; }
-    private String formatAny(Object src){
-        if (src==null) return "-";
-        try{
+    // === HELPERS ===
+    private String nullToDash(String s) { return (s == null || s.isEmpty()) ? "-" : s; }
+
+    private String formatAny(Object src) {
+        if (src == null) return "-";
+        try {
             if (src instanceof Date) return sdfOut.format((Date) src);
-            if (src instanceof String){
+            if (src instanceof String) {
                 Date d;
                 try { d = sdfIso.parse((String) src); }
-                catch (ParseException ignore){ d = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse((String) src); }
-                return d!=null ? sdfOut.format(d) : "-";
+                catch (ParseException ignore) { d = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse((String) src); }
+                return d != null ? sdfOut.format(d) : "-";
             }
-        }catch (Exception ignore){}
+        } catch (Exception ignore) { }
         return "-";
     }
 }

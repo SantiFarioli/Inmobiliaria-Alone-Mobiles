@@ -43,4 +43,10 @@
     <string name="lugar_trabajo">Lugar de trabajo</string>
     <string name="garante">Garante</string>
     <string name="dni_garante">DNI Garante</string>
+
+    <string name="no_hay_pagos">No hay pagos registrados</string>
+    <string name="ic_money">Ícono de dinero</string>
+    <string name="no_hay_contratos">No hay contratos vigentes</string>
+
+
 </resources>

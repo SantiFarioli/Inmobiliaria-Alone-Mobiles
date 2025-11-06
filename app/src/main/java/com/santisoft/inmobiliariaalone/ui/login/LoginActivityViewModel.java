@@ -14,6 +14,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
+import com.santisoft.inmobiliariaalone.model.Propietario;
 import com.santisoft.inmobiliariaalone.retrofit.ApClient;
 import com.santisoft.inmobiliariaalone.util.DialogEvent;
 
@@ -53,6 +54,23 @@ public class LoginActivityViewModel extends AndroidViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     SessionManager session = new SessionManager(getApplication());
                     session.saveSession(response.body());
+
+                    // 🔹 Nuevo: obtenemos el perfil completo del propietario para completar nombre/apellido
+                    ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
+                    api.obtenerPerfil().enqueue(new Callback<Propietario>() {
+                        @Override
+                        public void onResponse(@NonNull Call<Propietario> call,
+                                               @NonNull Response<Propietario> response2) {
+                            if (response2.isSuccessful() && response2.body() != null) {
+                                session.updateProfileData(response2.body());
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@NonNull Call<Propietario> call, @NonNull Throwable t) {
+                            // No interrumpe el flujo si falla
+                        }
+                    });
 
                     dialogEvent.postValue(new DialogEvent(DialogEvent.Type.SUCCESS,
                             "Bienvenido",

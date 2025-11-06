@@ -7,26 +7,28 @@
     android:padding="16dp"
     android:background="?attr/colorSurface">
 
-    <!-- 🔹 Encabezado -->
+    <!-- Encabezado -->
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvTitulo"
         style="@style/TextAppearance.Material3.HeadlineSmall"
         android:text="@string/inquilinos_titulo"
         android:textColor="?attr/colorPrimary"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="2dp" />
+        android:layout_marginBottom="2dp"
+        android:gravity="center" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/tvSubtitulo"
         style="@style/TextAppearance.Material3.BodyMedium"
         android:text="@string/subtitulo_inquilinos"
         android:textColor="?attr/colorOnSurfaceVariant"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:gravity="center" />
 
-    <!-- 🔹 Indicador de carga -->
+    <!-- Indicador de carga -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -42,7 +44,7 @@
             app:indicatorColor="?attr/colorPrimary" />
     </FrameLayout>
 
-    <!-- 🔹 Lista -->
+    <!-- Lista -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvInquilinos"
         android:layout_width="match_parent"
@@ -52,7 +54,7 @@
         android:paddingBottom="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-    <!-- 🔹 Estado vacío -->
+    <!-- Estado vacío -->
     <LinearLayout
         android:id="@+id/emptyView"
         android:layout_width="match_parent"

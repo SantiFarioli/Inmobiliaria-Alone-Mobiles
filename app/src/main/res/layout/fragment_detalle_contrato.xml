@@ -1,126 +1,99 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:gravity="center_horizontal">
 
+        <!-- Título centrado -->
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tvTitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Detalle del Contrato"
+            android:textColor="?attr/colorPrimary"
+            style="@style/TextAppearance.Material3.HeadlineSmall"
+            android:layout_marginBottom="16dp"
+            android:gravity="center" />
+
+        <!-- Card central -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardUseCompatPadding="true"
-            app:cardCornerRadius="16dp">
+            android:layout_margin="12dp"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="6dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:strokeColor="?attr/colorOutline"
+            app:strokeWidth="1dp"
+            android:padding="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:gravity="center_horizontal">
 
+                <!-- Dirección -->
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvDireccion"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Información del contrato"
+                    android:text="Av. Rivadavia 1234"
+                    style="@style/TextAppearance.Material3.TitleMedium"
                     android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:paddingBottom="8dp"/>
+                    android:textColor="?attr/colorOnSurface"
+                    android:layout_marginBottom="8dp" />
 
-                <!-- Código -->
+                <!-- Inquilino -->
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvInquilino"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Código contrato"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tvCodigo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:paddingBottom="6dp"/>
+                    android:text="Laura Gómez"
+                    style="@style/TextAppearance.Material3.BodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Fechas -->
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/tvFechas"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Fecha inicio"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tvInicio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Fecha finalización"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tvFin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="6dp"/>
+                    android:text="2025-01-01 – 2025-12-31"
+                    style="@style/TextAppearance.Material3.BodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:layout_marginBottom="8dp" />
 
                 <!-- Monto -->
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Monto de alquiler"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
                     android:id="@+id/tvMonto"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="$150000.00"
+                    style="@style/TextAppearance.Material3.TitleMedium"
                     android:textStyle="bold"
-                    android:paddingBottom="6dp"/>
+                    android:textColor="?attr/colorPrimary"
+                    android:layout_marginBottom="16dp" />
 
-                <!-- Inquilino / Inmueble -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Inquilino"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tvInquilino"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"/>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Inmueble"
-                    android:textColor="#777"
-                    android:textSize="12sp"/>
-                <TextView
-                    android:id="@+id/tvInmueble"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="12dp"/>
-
+                <!-- Botón centrado -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnPagos"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:text="VER PAGOS"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/white"
-                    app:backgroundTint="@color/purple_500"
-                    android:layout_marginTop="16dp"/>
+                    android:id="@+id/btnVerPagos"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ver Pagos"
+                    app:icon="@drawable/ic_money"
+                    app:iconTint="?attr/colorOnPrimaryContainer"
+                    android:layout_marginTop="8dp" />
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
     </LinearLayout>
 </ScrollView>

@@ -9,52 +9,52 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.santisoft.inmobiliariaalone.databinding.ItemPagoBinding;
 import com.santisoft.inmobiliariaalone.model.Pago;
 
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class PagoAdapter extends RecyclerView.Adapter<PagoAdapter.VH> {
 
     private final List<Pago> data = new ArrayList<>();
-    private final SimpleDateFormat sdfOut = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-    private final NumberFormat money = NumberFormat.getCurrencyInstance(new Locale("es", "AR"));
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
-    public void submit(List<Pago> list){
+    public void submit(List<Pago> list) {
         data.clear();
         if (list != null) data.addAll(list);
         notifyDataSetChanged();
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemPagoBinding b = ItemPagoBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new VH(b);
+        ItemPagoBinding binding = ItemPagoBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new VH(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int position) {
+    public void onBindViewHolder(@NonNull VH holder, int position) {
         Pago p = data.get(position);
 
-        // Número (fallback por si viene 0)
-        int nro = p.getNumeroPago() > 0 ? p.getNumeroPago() : (position + 1);
-        h.b.tvNumero.setText("Pago #" + nro);
+        holder.b.tvNumero.setText("Pago #" + p.getNumeroPago());
+        holder.b.tvImporte.setText(String.format(Locale.getDefault(), "$ %.2f", p.getImporte()));
 
-        // Fecha
-        Date f = p.getFechaPago();
-        h.b.tvFecha.setText(f != null ? sdfOut.format(f) : "-");
-
-        // Importe
-        h.b.tvImporte.setText(money.format(p.getImporte()));
+        // Java
+        String fecha = (p.getFechaPago() != null) ? sdf.format(p.getFechaPago()) : "-";
+        holder.b.tvFecha.setText(fecha);
     }
 
     @Override
-    public int getItemCount() { return data.size(); }
+    public int getItemCount() {
+        return data.size();
+    }
 
     static class VH extends RecyclerView.ViewHolder {
         final ItemPagoBinding b;
-        VH(@NonNull ItemPagoBinding b) { super(b.getRoot()); this.b = b; }
+
+        VH(ItemPagoBinding binding) {
+            super(binding.getRoot());
+            this.b = binding;
+        }
     }
 }
