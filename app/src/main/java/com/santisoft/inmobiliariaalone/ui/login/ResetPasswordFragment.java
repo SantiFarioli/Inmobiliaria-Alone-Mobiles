@@ -177,7 +177,7 @@ public class ResetPasswordFragment extends Fragment {
 
         // 2) lanzar LoginActivity y limpiar backstack
         try {
-            Intent intent = new Intent(requireContext(), com.santisoft.inmobiliariaalone.ui.login.LoginActivity.class);
+            Intent intent = new Intent(requireContext(), com.santisoft.inmobiliariaalone.ui.login.AuthActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         } catch (Exception e) {

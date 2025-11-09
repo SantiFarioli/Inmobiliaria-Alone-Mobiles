@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 
 import com.santisoft.inmobiliariaalone.R;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
-import com.santisoft.inmobiliariaalone.ui.login.LoginActivity;
-import com.santisoft.inmobiliariaalone.util.DialogUtils;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 
@@ -39,10 +37,11 @@ public class SalirFragment extends Fragment {
                 session.clear();
                 sweetAlertDialog.dismissWithAnimation();
 
-                Intent intent = new Intent(requireContext(), LoginActivity.class);
+                Intent intent = new Intent(requireContext(), com.santisoft.inmobiliariaalone.ui.login.AuthActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 requireActivity().finish();
+
             }
         });
 

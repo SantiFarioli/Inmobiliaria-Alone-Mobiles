@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.navigation.NavController;
 
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.model.LoginResponse;
@@ -55,7 +56,7 @@ public class LoginActivityViewModel extends AndroidViewModel {
                     SessionManager session = new SessionManager(getApplication());
                     session.saveSession(response.body());
 
-                    // 🔹 Nuevo: obtenemos el perfil completo del propietario para completar nombre/apellido
+                    // 🔹 Obtener datos del perfil para el nombre completo
                     ApClient.InmobliariaService api = ApClient.getInmobiliariaService(getApplication());
                     api.obtenerPerfil().enqueue(new Callback<Propietario>() {
                         @Override
@@ -93,9 +94,10 @@ public class LoginActivityViewModel extends AndroidViewModel {
     }
 
     // === Recuperar contraseña ===
-    public void irARecuperar(Context ctx) {
-        Intent intent = new Intent(ctx, RecuperarContraseniaActivity.class);
-        ctx.startActivity(intent);
+    public void irARecuperar(NavController navController) {
+        if (navController != null) {
+            navController.navigate(com.santisoft.inmobiliariaalone.R.id.action_loginFragment_to_recuperarFragment);
+        }
     }
 
     // === Agitación (shake) ===
@@ -113,7 +115,7 @@ public class LoginActivityViewModel extends AndroidViewModel {
 
     // === Llamada telefónica ===
     public void ejecutarLlamada(Context ctx) {
-        String numero = "123456789"; // número ficticio de prueba
+        String numero = "123456789"; // número ficticio
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + numero));
 
         if (ActivityCompat.checkSelfPermission(ctx, android.Manifest.permission.CALL_PHONE)

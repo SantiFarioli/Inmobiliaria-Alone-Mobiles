@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--  Permisos básicos -->
+    <!-- Permisos básicos -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Permisos de lectura de imágenes (Android 13+) -->
+    <!-- Permisos de lectura (Android 13+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
     <!-- Permisos de llamada -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <!-- Para evitar advertencia de hardware -->
     <uses-feature android:name="android.hardware.telephony" android:required="false" />
 
-
-    <!--  Compatibilidad con Android <= 12 -->
+    <!-- Compatibilidad Android 12- -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -32,14 +30,19 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:usesCleartextTraffic="true">
 
-        <!--  Main Activity -->
+        <!--  Nueva pantalla de autenticación (login + recuperar + reset) -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.InmobiliariaAlone.NoActionBar">
+            android:name=".ui.login.AuthActivity"
+            android:exported="true">
 
+            <!--  App arranca aquí -->
             <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!--  Deep link: abre AuthActivity directamente -->
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -51,25 +54,17 @@
             </intent-filter>
         </activity>
 
-        <!--  Recuperar contraseña -->
+        <!--  Pantalla principal -->
         <activity
-            android:name=".ui.login.RecuperarContraseniaActivity"
-            android:exported="true" />
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.InmobiliariaAlone.NoActionBar" />
 
-        <!--  Clave de Google Maps -->
+        <!-- Clave de Google Maps -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCzpzNOMFL_5whklLsTtpB1NBJ7ZX9KHj8" />
-
-        <!--  Pantalla de inicio (login) -->
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
     </application>
 

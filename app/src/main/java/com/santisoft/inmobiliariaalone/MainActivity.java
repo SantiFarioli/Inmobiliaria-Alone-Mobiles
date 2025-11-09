@@ -1,19 +1,19 @@
 package com.santisoft.inmobiliariaalone;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.material.navigation.NavigationView;
-
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.navigation.NavigationView;
 import com.santisoft.inmobiliariaalone.data.local.SessionManager;
 import com.santisoft.inmobiliariaalone.databinding.ActivityMainBinding;
 
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
 
-        // Configuración de navegación
+        // Configuración de navegación (fragmentos principales)
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_inicio,
                 R.id.nav_perfil,
@@ -49,11 +49,21 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        // Mostrar nombre completo y email del propietario al iniciar
+        // 🔐 Si no hay sesión activa, volver al login
+        SessionManager session = new SessionManager(this);
+        if (session.getToken() == null || session.getToken().isEmpty()) {
+            Intent intent = new Intent(this, com.santisoft.inmobiliariaalone.ui.login.AuthActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // Mostrar nombre completo y email del propietario
         refrescarHeader();
     }
 
-    // Método reutilizable para refrescar el header dinámicamente
+    // Método para refrescar el header con los datos del propietario logueado
     public void refrescarHeader() {
         SessionManager session = new SessionManager(this);
         View headerView = binding.navView.getHeaderView(0);

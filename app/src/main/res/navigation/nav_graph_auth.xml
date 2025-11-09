@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_auth"
+    app:startDestination="@id/loginFragment">
+
+    <!-- LOGIN -->
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.login.LoginFragment"
+        android:label="Iniciar Sesión"
+        tools:layout="@layout/activity_login">
+        <action
+            android:id="@+id/action_loginFragment_to_recuperarFragment"
+            app:destination="@id/recuperarFragment" />
+    </fragment>
+
+    <!-- RECUPERAR CONTRASEÑA -->
+    <fragment
+        android:id="@+id/recuperarFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.login.RecuperarFragment"
+        android:label="Recuperar Contraseña"
+        tools:layout="@layout/activity_recuperar_contrasenia" />
+
+    <!-- RESTABLECER CONTRASEÑA -->
+    <fragment
+        android:id="@+id/resetPasswordFragment"
+        android:name="com.santisoft.inmobiliariaalone.ui.login.ResetPasswordFragment"
+        android:label="Restablecer Contraseña"
+        tools:layout="@layout/activity_cambiar_password">
+
+        <!-- Deep link del correo -->
+        <deepLink
+            app:uri="http://192.168.0.100:5157/api/Propietarios/{id}/restablecer-contrasena?token={token}" />
+
+        <argument
+            android:name="id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+
+        <argument
+            android:name="token"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+</navigation>
