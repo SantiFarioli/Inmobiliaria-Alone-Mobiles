@@ -59,8 +59,8 @@ public class InmueblesFragment extends Fragment {
         vm.getLista().observe(getViewLifecycleOwner(), (List<Inmueble> inmuebles) -> {
             adapter.submit(inmuebles);
             boolean empty = (inmuebles == null || inmuebles.isEmpty());
-            binding.textSlideshow.setText(empty ? "No hay inmuebles cargados" : "");
-            binding.textSlideshow.setVisibility(empty ? View.VISIBLE : View.GONE);
+            binding.tv.setText(empty ? "No hay inmuebles cargados" : "");
+            binding.tv.setVisibility(empty ? View.VISIBLE : View.GONE);
             binding.recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
         });
 
